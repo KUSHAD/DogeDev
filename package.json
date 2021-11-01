@@ -1,0 +1,20 @@
+{
+  "name": "dogedev",
+  "version": "1.0.0",
+  "description": "The Official Repository For All DogeDev Projects",
+  "scripts": {
+    "admin:dev": "cd admin && npm run dev",
+    "admin:build": "cd admin && npm run build",
+    "admin:deploy": "cd admin && npm run deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KUSHAD/DogeDev.git"
+  },
+  "author": "Kushad Chakraborty",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KUSHAD/DogeDev/issues"
+  },
+  "homepage": "https://github.com/KUSHAD/DogeDev#readme"
+}
