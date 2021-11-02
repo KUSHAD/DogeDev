@@ -13,7 +13,7 @@ export default function StudentUpdate({ setError, setSuccess, onClose }) {
   const [sub, setSub] = useState("SKATING");
   const [doa, setDoa] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { fields } = useFetchMaster();
+  const { fields, setStudentsAdd, studentsAdd } = useFetchMaster();
   const { user } = useAuthProvider();
   async function onUpdate() {
     try {
@@ -48,6 +48,7 @@ export default function StudentUpdate({ setError, setSuccess, onClose }) {
       };
 
       await sheet.addRow(addToRow);
+      await setStudentsAdd([addToRow, ...studentsAdd]);
 
       setSuccess("Data updated succesfully");
     } catch (error) {

@@ -3,6 +3,7 @@ import Tab from "react-bootstrap/Tab";
 import Income from "./Income";
 import Expenditure from "./Expenditure";
 import Admission from "./Admission";
+import Attendance from "./Attendance";
 
 export default function Private() {
   return (
@@ -16,8 +17,11 @@ export default function Private() {
       <Tab eventKey="Exp" title="Expenditure">
         <Expenditure />
       </Tab>
-      <Tab eventKey="Ad" title="Admission">
+      <Tab eventKey="Adm" title="Admission">
         <Admission />
+      </Tab>
+      <Tab eventKey="Att" title="Attendance">
+        <Attendance />
       </Tab>
     </Tabs>
   );
