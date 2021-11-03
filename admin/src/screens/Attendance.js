@@ -7,8 +7,12 @@ import Alert from "react-bootstrap/Alert";
 import { useFetchMaster } from "../contexts/FetchMaster";
 import StudentsTable from "../components/StudentsTable";
 import Button from "react-bootstrap/Button";
+import Prompt from "../components/Prompt";
+import AttendanceQuery from "./Query/AttendanceQuery";
+
 export default function Attendance() {
   const { studentsAdd, fields } = useFetchMaster();
+  const [isOpen, setIsOpen] = useState(false);
   const [sub, setSub] = useState("");
   const [date, setDate] = useState("");
   const [showTable, setShowTable] = useState(false);
@@ -75,7 +79,9 @@ export default function Attendance() {
             Make Attendance
           </Button>
         </Form>
-
+        <Button onClick={() => setIsOpen(true)} className="w-100 mt-2 mb-2">
+          Attendance Report
+        </Button>
         {showTable && (
           <>
             {error && (
@@ -111,6 +117,12 @@ export default function Attendance() {
           </>
         )}
       </Centered>
+      <Prompt
+        isOpen={isOpen}
+        body={<AttendanceQuery />}
+        header="Attendance Report"
+        onClose={() => setIsOpen(false)}
+      />
     </>
   );
 }

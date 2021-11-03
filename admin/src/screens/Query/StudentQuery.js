@@ -117,8 +117,8 @@ export default function StudentQuery({ onClose, setIsOpen, setPDFData }) {
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((d) => (
-              <tr key={d.SR}>
+            {filteredData.map((d, i) => (
+              <tr key={`${d.SR}-${i}`}>
                 <td>{d.SR}</td>
                 <td>{d.NAME}</td>
                 <td>{d.SUBJECT}</td>
