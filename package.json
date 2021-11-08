@@ -7,7 +7,8 @@
 		"admin:build": "cd admin && npm run build",
 		"admin:deploy": "cd admin && npm run deploy",
 		"restaurant:dev": "cd restaurant && npm run dev",
-		"restaurant:build": "cd restaurant && npm run build"
+		"restaurant:build": "cd restaurant && npm run build",
+		"restaurant:deploy": "cd restaurant && npm run deploy"
 	},
 	"repository": {
 		"type": "git",

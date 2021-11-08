@@ -2,6 +2,7 @@ import FAB from '../Components/FAB';
 import Header from '../Components/Header';
 import { MdAdd } from 'react-icons/md';
 import { useAuthProvider } from '../context/Auth';
+import { useHistory } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import Prompt from '../Components/Prompt';
 import Form from 'react-bootstrap/Form';
@@ -28,6 +29,7 @@ export default function Tables() {
 	const [error, setError] = useState('');
 	const [tableId, setTableId] = useState('');
 	const [deleteModal, setDeleteModal] = useState(false);
+	const history = useHistory();
 	async function onAddTable() {
 		try {
 			setIsDisabled(true);
@@ -67,7 +69,11 @@ export default function Tables() {
 				}
 			);
 		} else {
-			const q = query(database.orderColl(), where('userId', '==', user));
+			const q = query(
+				database.orderColl(),
+				where('userId', '==', user),
+				where('status', '==', constants.TABLE_STATUS.IN_PROGRESS)
+			);
 			onSnapshot(
 				q,
 				({ docs }) => {
@@ -112,6 +118,11 @@ export default function Tables() {
 			<ListGroup>
 				{tables.map(table => (
 					<ListGroup.Item
+						onClick={() => {
+							history.push(`/table/${table.id}`, {
+								name: table.name,
+							});
+						}}
 						onContextMenu={e => {
 							e.preventDefault();
 							if (isOwner) return;
@@ -136,7 +147,11 @@ export default function Tables() {
 					onClick={() => setTableModal(true)}
 				/>
 			)}
-			<SnackBar isOpen={error} onClose={() => setError('')} error={error} />
+			<SnackBar
+				isOpen={Boolean(error)}
+				onClose={() => setError('')}
+				error={error}
+			/>
 			<Prompt
 				header='Add Table'
 				isOpen={tableModal}
