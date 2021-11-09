@@ -11,6 +11,8 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import constants from '../constants';
 import BSTable from 'react-bootstrap/Table';
+import kitchenRecpt from '../Templates/kitchen';
+
 export default function Table() {
 	const [deleteModal, setDeleteModal] = useState(false);
 	const [error, setError] = useState('');
@@ -118,6 +120,30 @@ export default function Table() {
 			setIsDisabled(false);
 		}
 	}
+
+	async function sendToKitchen() {
+		try {
+			setIsDisabled(true);
+			await updateDoc(database.orderID(id), {
+				itemsDiff: false,
+			});
+			const recpt = await kitchenRecpt(tableData);
+			const winUrl = URL.createObjectURL(
+				new Blob([recpt], { type: 'text/html' })
+			);
+
+			window.open(
+				winUrl,
+				'win',
+				`width=800,height=400,screenX=200,screenY=200`
+			);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			setIsDisabled(false);
+		}
+	}
+
 	return (
 		<>
 			<Header title={tableName} to='/' isBack />
@@ -223,49 +249,63 @@ export default function Table() {
 				)}
 			</div>
 			{tableData?.orders?.length ? (
-				<BSTable
-					className='mt-2 user-select-none'
-					striped
-					responsive
-					bordered
-					hover
-				>
-					<caption>Table Orders</caption>
-					<thead>
-						<tr>
-							<th scope='col'>Item</th>
-							<th scope='col'></th>
-							<th scope='col'>Quantity</th>
-							<th scope='col'>Unit Price</th>
-							<th scope='col'>Total</th>
-						</tr>
-					</thead>
-					<tbody>
-						{tableData?.orders?.map((order, index) => (
-							<tr
-								onContextMenu={e => {
-									e.preventDefault();
-
-									if (isOwner) return;
-									setItemToDelete(order);
-									setDeleteModal(true);
-								}}
-								key={index}
-							>
-								<td>{order.item}</td>
-								<td>{order.isParcel ? 'Parcel' : 'Table'}</td>
-								<td>{order.quantity}</td>
-								<td>{order.unitPrice}</td>
-								<td>{order.quantity * order.unitPrice}</td>
+				<>
+					<BSTable
+						className='mt-2 user-select-none'
+						striped
+						responsive
+						bordered
+						hover
+					>
+						<caption>Table Orders</caption>
+						<thead>
+							<tr>
+								<th scope='col'>Item</th>
+								<th scope='col'></th>
+								<th scope='col'>Quantity</th>
+								<th scope='col'>Unit Price</th>
+								<th scope='col'>Total</th>
 							</tr>
-						))}
-						<tr>
-							<td colSpan={3}></td>
-							<td>Total</td>
-							<td>{totalAmt}</td>
-						</tr>
-					</tbody>
-				</BSTable>
+						</thead>
+						<tbody>
+							{tableData?.orders?.map((order, index) => (
+								<tr
+									onContextMenu={e => {
+										e.preventDefault();
+
+										if (isOwner) return;
+										setItemToDelete(order);
+										setDeleteModal(true);
+									}}
+									key={index}
+								>
+									<td>{order.item}</td>
+									<td>{order.isParcel ? 'Parcel' : 'Table'}</td>
+									<td>{order.quantity}</td>
+									<td>{order.unitPrice}</td>
+									<td>{order.quantity * order.unitPrice}</td>
+								</tr>
+							))}
+							<tr>
+								<td colSpan={3}></td>
+								<td>Total</td>
+								<td>{totalAmt}</td>
+							</tr>
+						</tbody>
+					</BSTable>
+					{isOwner && (
+						<div className='d-flex flex-row justify-content-center mt-2'>
+							<Button
+								onClick={() => sendToKitchen()}
+								className='w-25'
+								disabled={isDisabled}
+								variant='secondary'
+							>
+								To Kitchen
+							</Button>
+						</div>
+					)}
+				</>
 			) : (
 				<h3 className='text-center mt-2'>This table has no orders</h3>
 			)}
@@ -277,7 +317,7 @@ export default function Table() {
 					setItemToDelete({});
 				}}
 			>
-				Are you sure you wanna delete this item{' '}
+				Are you sure you wanna delete this item ?
 				<div
 					style={{
 						display: 'flex',
