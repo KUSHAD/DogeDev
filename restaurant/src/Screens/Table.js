@@ -12,8 +12,10 @@ import Form from 'react-bootstrap/Form';
 import constants from '../constants';
 import BSTable from 'react-bootstrap/Table';
 import kitchenRecpt from '../Templates/kitchen';
+import Bill from './Bill';
 
 export default function Table() {
+	const [billModal, setBillModal] = useState(false);
 	const [deleteModal, setDeleteModal] = useState(false);
 	const [error, setError] = useState('');
 	const [totalAmt, setTotalAmt] = useState('');
@@ -144,6 +146,23 @@ export default function Table() {
 		}
 	}
 
+	function generateBill() {
+		setBillModal(true);
+	}
+
+	async function askToBill() {
+		try {
+			setIsDisabled(true);
+			await updateDoc(database.orderID(id), {
+				askToBill: true,
+			});
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			setIsDisabled(false);
+		}
+	}
+
 	return (
 		<>
 			<Header title={tableName} to='/' isBack />
@@ -257,7 +276,6 @@ export default function Table() {
 						bordered
 						hover
 					>
-						<caption>Table Orders</caption>
 						<thead>
 							<tr>
 								<th scope='col'>Item</th>
@@ -293,16 +311,42 @@ export default function Table() {
 							</tr>
 						</tbody>
 					</BSTable>
-					{isOwner && (
+					{isOwner ? (
 						<div className='d-flex flex-row justify-content-center mt-2'>
 							<Button
+								onClick={() => generateBill()}
+								className='w-50 me-2'
+								disabled={isDisabled}
+								variant='primary'
+							>
+								Generate Bill
+							</Button>
+							<Button
 								onClick={() => sendToKitchen()}
-								className='w-25'
+								className='w-50 ms-2'
 								disabled={isDisabled}
 								variant='secondary'
 							>
 								To Kitchen
 							</Button>
+						</div>
+					) : (
+						<div className='d-flex flex-column text-center '>
+							<Button
+								onClick={() => askToBill()}
+								className='w-50 mx-auto'
+								disabled={isDisabled}
+								variant='primary'
+							>
+								Ask To Bill
+							</Button>
+							{tableData?.askToBill ? (
+								<strong>We are informing the owner to bill this table</strong>
+							) : (
+								<strong>
+									Click on this button to inform the owner to bill this table
+								</strong>
+							)}
 						</div>
 					)}
 				</>
@@ -351,11 +395,34 @@ export default function Table() {
 					</div>
 				</div>
 			</Prompt>
+			<Prompt
+				isOpen={billModal}
+				header='Generate Bill'
+				onClose={() => setBillModal(false)}
+			>
+				<Bill />
+			</Prompt>
 			<SnackBar
-				error={error}
+				message={error}
 				isOpen={Boolean(error)}
 				onClose={() => setError(error)}
 			/>
+			{isOwner && (
+				<SnackBar
+					variant='success'
+					message={`The waiter has requested to bill this table`}
+					isOpen={tableData?.askToBill}
+					onClose={async () => {
+						try {
+							await updateDoc(database.orderID(id), {
+								askToBill: false,
+							});
+						} catch (error) {
+							setError(error.message);
+						}
+					}}
+				/>
+			)}
 		</>
 	);
 }

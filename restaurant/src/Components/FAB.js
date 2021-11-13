@@ -5,7 +5,7 @@ export default function FAB({ icon, text, onClick }) {
 		<Button
 			className='shadow-lg rounded-pill position-fixed'
 			onClick={onClick}
-			style={{ bottom: 10, right: 10 }}
+			style={{ bottom: 10, right: 10, zIndex: 30 }}
 		>
 			{text} {icon}
 		</Button>,

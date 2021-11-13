@@ -9,6 +9,7 @@ export default function Header({ to, title, isBack }) {
 				height: 64,
 				top: 0,
 				left: 0,
+				zIndex: 30,
 			}}
 		>
 			<div className='bg-primary h-100 shadow-lg d-flex align-items-center'>

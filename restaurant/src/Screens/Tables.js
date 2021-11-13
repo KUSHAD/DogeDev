@@ -13,12 +13,15 @@ import {
 	query,
 	where,
 	deleteDoc,
+	orderBy,
+	serverTimestamp,
+	updateDoc,
 } from 'firebase/firestore';
 import { database } from '../firebase';
 import constants from '../constants';
 import SnackBar from '../Components/SnackBar';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { MdRefresh, MdFastfood } from 'react-icons/md';
+import { MdRefresh, MdFastfood, MdCheck, MdBackHand } from 'react-icons/md';
 
 export default function Tables() {
 	const [tableModal, setTableModal] = useState(false);
@@ -40,6 +43,8 @@ export default function Tables() {
 				userId: user,
 				items: 0,
 				itemsDiff: false,
+				createdAt: serverTimestamp(),
+				askToBill: false,
 			});
 			setTableName('');
 			setTableModal(false);
@@ -72,7 +77,8 @@ export default function Tables() {
 			const q = query(
 				database.orderColl(),
 				where('userId', '==', user),
-				where('status', '==', constants.TABLE_STATUS.IN_PROGRESS)
+				where('status', '==', constants.TABLE_STATUS.IN_PROGRESS),
+				orderBy('createdAt', 'asc')
 			);
 			onSnapshot(
 				q,
@@ -137,9 +143,34 @@ export default function Tables() {
 							<h4>{table.name}</h4>
 						</div>
 						<h6>{table.status} </h6> {isOwner && <h6>Waiter {table.userId}</h6>}
+						{isOwner ? (
+							table.itemsDiff ? (
+								<MdBackHand className='text-danger' />
+							) : (
+								<MdCheck className='text-primary' />
+							)
+						) : null}
 					</ListGroup.Item>
 				))}
 			</ListGroup>
+			{isOwner &&
+				tables.map(table => (
+					<SnackBar
+						key={table.id}
+						isOpen={table.askToBill}
+						variant='success'
+						message={`The waiter has requested to bill table :- ${table.name}`}
+						onClose={async () => {
+							try {
+								await updateDoc(database.orderID(table.id), {
+									askToBill: false,
+								});
+							} catch (error) {
+								setError(error.message);
+							}
+						}}
+					/>
+				))}
 			{!isOwner && (
 				<FAB
 					icon={<MdAdd />}
@@ -150,7 +181,7 @@ export default function Tables() {
 			<SnackBar
 				isOpen={Boolean(error)}
 				onClose={() => setError('')}
-				error={error}
+				message={error}
 			/>
 			<Prompt
 				header='Add Table'
