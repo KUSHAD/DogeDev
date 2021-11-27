@@ -9,6 +9,8 @@ import Table from './Screens/Table';
 import Alert from 'react-bootstrap/Alert';
 import Loading from './Components/Loading';
 import Button from 'react-bootstrap/Button';
+import OwnerRoute from './Components/OwnerRoute';
+import Counter from './Screens/Counter';
 
 function App() {
 	const { error, isLoading, fetchMenu } = useFetchMaster();
@@ -47,7 +49,7 @@ function App() {
 				<Switch>
 					<Route path='/' exact component={user ? Tables : Auth} />
 					<PrivateRoute path='/table/:id' component={Table} />
-
+					<OwnerRoute path='/counter/:id' component={Counter} />
 					<Redirect to='/' />
 				</Switch>
 			</BrowserRouter>

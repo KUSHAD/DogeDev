@@ -16,6 +16,8 @@ import {
 	orderBy,
 	serverTimestamp,
 	updateDoc,
+	getDocs,
+	limit,
 } from 'firebase/firestore';
 import { database } from '../firebase';
 import constants from '../constants';
@@ -116,6 +118,35 @@ export default function Tables() {
 		}
 	}
 
+	async function addCounterTable() {
+		try {
+			setIsDisabled(true);
+			await addDoc(database.orderColl(), {
+				name: 'Counter',
+				orders: [],
+				status: constants.TABLE_STATUS.IN_PROGRESS,
+				userId: user,
+				items: 0,
+				itemsDiff: false,
+				createdAt: serverTimestamp(),
+				askToBill: false,
+			});
+			const q = query(
+				database.orderColl(),
+				where('name', '==', 'Counter'),
+				where('status', '==', constants.TABLE_STATUS.IN_PROGRESS),
+				orderBy('createdAt', 'asc'),
+				limit(1)
+			);
+			const { docs } = await getDocs(q);
+			history.push(`/counter/${docs[0].id}`);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			setIsDisabled(false);
+		}
+	}
+
 	useEffect(() => {
 		getTables();
 	}, [getTables]);
@@ -125,10 +156,10 @@ export default function Tables() {
 			<Header title='Tables' />
 			<div className='d-flex flex-row my-2'>
 				<div className='me-auto' />
-				<Button onClick={() => setQueryModal(true)}>
+				<Button className='me-2' onClick={() => setQueryModal(true)}>
 					<MdSearch /> Query
 				</Button>
-				<Button onClick={getTables} className='me-2 ms-2'>
+				<Button onClick={getTables} className='me-2'>
 					<MdRefresh /> Refresh
 				</Button>
 			</div>
@@ -136,13 +167,17 @@ export default function Tables() {
 				{tables.map(table => (
 					<ListGroup.Item
 						onClick={() => {
-							history.push(`/table/${table.id}`, {
-								name: table.name,
-							});
+							if (table.name === 'Counter') {
+								history.push(`/counter/${table.id}`);
+							} else {
+								history.push(`/table/${table.id}`, {
+									name: table.name,
+								});
+							}
 						}}
 						onContextMenu={e => {
 							e.preventDefault();
-							if (isOwner) return;
+							if (isOwner && table.name !== 'Counter') return;
 							setTableId(table.id);
 							setDeleteModal(true);
 						}}
@@ -182,7 +217,13 @@ export default function Tables() {
 						}}
 					/>
 				))}
-			{!isOwner && (
+			{isOwner ? (
+				<FAB
+					icon={<MdAdd />}
+					text='Add Counter Table'
+					onClick={() => addCounterTable()}
+				/>
+			) : (
 				<FAB
 					icon={<MdAdd />}
 					text='Add Table'
