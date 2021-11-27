@@ -21,11 +21,19 @@ import { database } from '../firebase';
 import constants from '../constants';
 import SnackBar from '../Components/SnackBar';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { MdRefresh, MdFastfood, MdCheck, MdBackHand } from 'react-icons/md';
+import {
+	MdRefresh,
+	MdFastfood,
+	MdCheck,
+	MdBackHand,
+	MdSearch,
+} from 'react-icons/md';
+import BillQuery from './Query/BillQuery';
 
 export default function Tables() {
 	const [tableModal, setTableModal] = useState(false);
 	const [tableName, setTableName] = useState('');
+	const [queryModal, setQueryModal] = useState(false);
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [tables, setTables] = useState([]);
 	const { isOwner, user } = useAuthProvider();
@@ -117,7 +125,10 @@ export default function Tables() {
 			<Header title='Tables' />
 			<div className='d-flex flex-row my-2'>
 				<div className='me-auto' />
-				<Button onClick={getTables} className='me-2'>
+				<Button onClick={() => setQueryModal(true)}>
+					<MdSearch /> Query
+				</Button>
+				<Button onClick={getTables} className='me-2 ms-2'>
 					<MdRefresh /> Refresh
 				</Button>
 			</div>
@@ -249,6 +260,13 @@ export default function Tables() {
 						</div>
 					</div>
 				</>
+			</Prompt>
+			<Prompt
+				isOpen={queryModal}
+				header='Bill Query'
+				onClose={() => setQueryModal(false)}
+			>
+				<BillQuery onClose={() => setQueryModal(false)} />
 			</Prompt>
 		</>
 	);
