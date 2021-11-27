@@ -15,9 +15,7 @@ export default function SnackBar({ isOpen, onClose, message, variant }) {
 				autohide
 			>
 				<Toast.Header>
-					<strong className='me-auto'>
-						{variant === 'danger' ? 'ERROR' : variant?.toUpperCase()}
-					</strong>
+					<strong className='me-auto'>{'Message'.toLocaleUpperCase()} </strong>
 				</Toast.Header>
 				<Toast.Body>{message}</Toast.Body>
 			</Toast>

@@ -1,6 +1,6 @@
 import { useLocation, useParams } from 'react-router-dom';
 import Header from '../Components/Header';
-import { onSnapshot, getDoc, updateDoc } from 'firebase/firestore';
+import { onSnapshot, updateDoc } from 'firebase/firestore';
 import { useCallback, useEffect, useState } from 'react';
 import { database } from '../firebase';
 import SnackBar from '../Components/SnackBar';
@@ -9,10 +9,11 @@ import { useAuthProvider } from '../context/Auth';
 import Prompt from '../Components/Prompt';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import constants from '../constants';
 import BSTable from 'react-bootstrap/Table';
 import kitchenRecpt from '../Templates/kitchen';
 import Bill from './Bill';
+import constants from '../constants';
+import intFormatter from '../intFormatter';
 
 export default function Table() {
 	const [billModal, setBillModal] = useState(false);
@@ -59,9 +60,10 @@ export default function Table() {
 		try {
 			if (quantity === 0) return setError('Quantity cannot be 0');
 			setIsDisabled(true);
-			const tabledata = await getDoc(database.orderID(id));
-			if (tabledata.data().status === constants.TABLE_STATUS.BILLED) {
-				setError('Table already billed');
+			if (tableData?.status === constants.TABLE_STATUS.BILLED) {
+				setError(
+					'Table is already billed or it is now billing ask the owner to stop the billing process'
+				);
 			} else {
 				let newOrder = [];
 				const includesItem = tableData.orders.filter(
@@ -102,9 +104,10 @@ export default function Table() {
 	async function deleteItem(_item) {
 		try {
 			setIsDisabled(true);
-			const tabledata = await getDoc(database.orderID(id));
-			if (tabledata.data().status === constants.TABLE_STATUS.BILLED) {
-				setError('Table already billed');
+			if (tableData?.status === constants.TABLE_STATUS.BILLED) {
+				setError(
+					'Table is already billed or it is now billing ask the owner to stop the billing process'
+				);
 			} else {
 				const newOrders = tableData.orders.filter(order => order !== _item);
 				await updateDoc(database.orderID(id), {
@@ -146,8 +149,18 @@ export default function Table() {
 		}
 	}
 
-	function generateBill() {
-		setBillModal(true);
+	async function generateBill() {
+		try {
+			setIsDisabled(true);
+			await updateDoc(database.orderID(id), {
+				status: constants.TABLE_STATUS.BILLED,
+			});
+			setBillModal(true);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			setIsDisabled(false);
+		}
 	}
 
 	async function askToBill() {
@@ -299,15 +312,15 @@ export default function Table() {
 								>
 									<td>{order.item}</td>
 									<td>{order.isParcel ? 'Parcel' : 'Table'}</td>
-									<td>{order.quantity}</td>
-									<td>{order.unitPrice}</td>
-									<td>{order.quantity * order.unitPrice}</td>
+									<td>{intFormatter(order.quantity)}</td>
+									<td>{intFormatter(order.unitPrice)}</td>
+									<td>{intFormatter(order.quantity * order.unitPrice)}</td>
 								</tr>
 							))}
 							<tr>
 								<td colSpan={3}></td>
 								<td>Total</td>
-								<td>{totalAmt}</td>
+								<td>{intFormatter(totalAmt)}</td>
 							</tr>
 						</tbody>
 					</BSTable>
@@ -398,14 +411,31 @@ export default function Table() {
 			<Prompt
 				isOpen={billModal}
 				header='Generate Bill'
-				onClose={() => setBillModal(false)}
+				onClose={async () => {
+					try {
+						setIsDisabled(true);
+						await updateDoc(database.orderID(id), {
+							status: constants.TABLE_STATUS.IN_PROGRESS,
+						});
+						setBillModal(false);
+					} catch (error) {
+						setError(error.message);
+					} finally {
+						setIsDisabled(false);
+					}
+				}}
 			>
-				<Bill />
+				<Bill
+					onClose={() => {
+						setBillModal(false);
+					}}
+					table={tableData}
+				/>
 			</Prompt>
 			<SnackBar
 				message={error}
 				isOpen={Boolean(error)}
-				onClose={() => setError(error)}
+				onClose={() => setError('')}
 			/>
 			{isOwner && (
 				<SnackBar

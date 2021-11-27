@@ -1,3 +1,4 @@
+import intFormatter from '../intFormatter';
 export default function kitchenRecpt(data) {
 	return `
   <!DOCTYPE html>
@@ -77,7 +78,7 @@ export default function kitchenRecpt(data) {
 							order => `
                 <tr>
                   <td class="description">${order?.item}</td>
-                  <td class="quantity">${order?.quantity}</td>
+                  <td class="quantity">${intFormatter(order?.quantity)}</td>
                   <td class="price">${order?.isParcel ? 'Parcel' : 'Table'}</td>
                 </tr>
             `

@@ -8,6 +8,7 @@ import {
 } from '@react-pdf/renderer';
 import constants from '../constants';
 import { useEffect, useState } from 'react';
+import intFormatter from '../intFormatter';
 export default function ExpenditurePDF({ data }) {
 	const [ammount, setAmmount] = useState('');
 	const [paymentModeDetail, setPaymentModeDetail] = useState('');
@@ -175,7 +176,7 @@ export default function ExpenditurePDF({ data }) {
 				</View>
 				<View style={styles.footer}>
 					<Text>
-						Rs. <Text style={styles.vars}>{data?.amt}/-</Text>
+						Rs. <Text style={styles.vars}>{intFormatter(data?.amt)}/-</Text>
 					</Text>
 					<View style={styles.footerInner}>
 						<View style={styles.signatureCont}>

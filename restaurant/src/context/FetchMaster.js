@@ -16,7 +16,7 @@ export function FetchMasterProvider({ children }) {
 			const doc = new GoogleSpreadsheet(constants.SPREAD_SHEET.ID);
 			await doc.useServiceAccountAuth(clientCreds);
 			await doc.loadInfo();
-			const sheet = doc.sheetsByIndex[3];
+			const sheet = doc.sheetsByIndex[2];
 			const rows = await sheet.getRows({
 				offset: 0,
 			});
