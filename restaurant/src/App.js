@@ -11,11 +11,10 @@ import Loading from './Components/Loading';
 import Button from 'react-bootstrap/Button';
 
 function App() {
-	const { error, fetchFields, isLoading, fetchMenu } = useFetchMaster();
+	const { error, isLoading, fetchMenu } = useFetchMaster();
 	const { setUser, setIsOwner, user } = useAuthProvider();
 	useEffect(() => {
 		async function get() {
-			await fetchFields();
 			await fetchMenu();
 		}
 		async function authUser() {
@@ -27,7 +26,7 @@ function App() {
 		}
 		authUser();
 		get();
-	}, [fetchFields, fetchMenu, setIsOwner, setUser]);
+	}, [fetchMenu, setIsOwner, setUser]);
 	return (
 		<>
 			<Loading isOpen={isLoading} />

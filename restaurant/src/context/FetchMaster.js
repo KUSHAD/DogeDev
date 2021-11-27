@@ -8,27 +8,7 @@ const FetchMaster = createContext();
 export function FetchMasterProvider({ children }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState('');
-	const [fields, setFields] = useState([]);
 	const [menu, setMenu] = useState([]);
-	const fetchFields = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			const doc = new GoogleSpreadsheet(constants.SPREAD_SHEET.ID);
-			await doc.useServiceAccountAuth(clientCreds);
-			await doc.loadInfo();
-			const sheet = doc.sheetsByIndex[2];
-			const rows = await sheet.getRows({
-				offset: 0,
-			});
-			setFields(rows);
-		} catch (error) {
-			setError(
-				`There was an error.${error.message}.Please refresh the page and then try again`
-			);
-		} finally {
-			setIsLoading(false);
-		}
-	}, []);
 
 	const fetchMenu = useCallback(async () => {
 		try {
@@ -51,10 +31,8 @@ export function FetchMasterProvider({ children }) {
 	}, []);
 
 	const value = {
-		fetchFields,
 		isLoading,
 		error,
-		fields,
 		fetchMenu,
 		menu,
 	};
