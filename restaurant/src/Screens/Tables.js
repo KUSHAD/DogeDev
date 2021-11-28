@@ -156,9 +156,11 @@ export default function Tables() {
 			<Header title='Tables' />
 			<div className='d-flex flex-row my-2'>
 				<div className='me-auto' />
-				<Button className='me-2' onClick={() => setQueryModal(true)}>
-					<MdSearch /> Query
-				</Button>
+				{isOwner && (
+					<Button className='me-2' onClick={() => setQueryModal(true)}>
+						<MdSearch /> Query
+					</Button>
+				)}
 				<Button onClick={getTables} className='me-2'>
 					<MdRefresh /> Refresh
 				</Button>
