@@ -125,7 +125,12 @@ export default function Income() {
 			<Loading isOpen={isSubmitting} />
 			<Prompt
 				header='Search Receipt'
-				body={<IncomeQuery onClose={() => setModalOpen(false)} />}
+				body={
+					<IncomeQuery
+						onClose={() => setModalOpen(false)}
+						setError={setError}
+					/>
+				}
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>

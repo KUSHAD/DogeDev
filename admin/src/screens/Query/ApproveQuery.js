@@ -3,69 +3,50 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import clientCreds from '../../client_creds.json';
 import constants from '../../constants';
 import Table from 'react-bootstrap/Table';
-import Form from 'react-bootstrap/Form';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
-import receiptBill from '../../templates/receipt';
+import { getDoc } from 'firebase/firestore/lite';
+import { database } from '../../firebase';
+import paymentBill from '../../templates/payment';
 
-export default function IncomeQuery({ onClose, setError }) {
-	const [name, setName] = useState('');
-	const [ph, setPh] = useState('');
+export default function ApproveQuery({
+	onClose,
+	setDocsModal,
+	setError,
+	setDocs,
+	setExpID,
+}) {
 	const [data, setData] = useState([]);
 	const [showTable, setShowTable] = useState(false);
-	const [filteredData, setFilteredData] = useState([]);
 	const fetchData = useCallback(async () => {
 		try {
+			setShowTable(false);
 			const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
 			await doc.useServiceAccountAuth(clientCreds);
 			await doc.loadInfo();
-			const sheet = doc.sheetsByIndex[0];
+			const sheet = doc.sheetsByIndex[1];
 			const rows = await sheet.getRows();
-			setData(rows);
+			setData(rows.filter(row => row.STATUS === constants.EXP_STATS.PEN));
+			setShowTable(true);
 		} catch (error) {
 			setError(error.message);
 			onClose();
 		}
-	}, [onClose, setError]);
+	}, [setError, onClose]);
 	useEffect(() => {
 		fetchData();
 		return () => {
 			setData([]);
-			setFilteredData([]);
-			setName('');
-			setPh('');
 			setShowTable(false);
 		};
 	}, [fetchData]);
-	function onOk() {
-		let newData;
-		if (name && ph) {
-			newData = data.filter(
-				d => d.NAME.includes(name) && d.IDENTITY_NO.includes(ph)
-			);
-		}
-		if (!name && ph) {
-			newData = data.filter(d => d.IDENTITY_NO.includes(ph));
-		}
-		if (name && !ph) {
-			newData = data.filter(d => d.NAME.includes(name));
-		}
-		setFilteredData(newData);
-		setShowTable(true);
-	}
-	function onClear() {
-		setName('');
-		setPh('');
-		setShowTable(false);
-	}
 	async function onView(data) {
-		const bill = await receiptBill({
+		const bill = await paymentBill({
 			type: data.TYPE,
 			desc: data.DESCRIPTION,
 			amt: data.AMOUNT,
 			date: data.DATE,
 			name: data.NAME,
-			ph: data.IDENTITY_NO,
+			ph: data.MOBILE_NUMBER,
 			mode: data.MODE_OF_PAYMENT,
 			cashMode: data.PAN_CARD_OR_AADHAR_CARD_NUMBER,
 			chequeNo: data.CHEQUE_OR_DD_NO,
@@ -78,43 +59,44 @@ export default function IncomeQuery({ onClose, setError }) {
 		window.open(winUrl, 'win', `width=800,height=400,screenX=200,screenY=200`);
 		onClose();
 	}
+
+	async function approveBill(_doc) {
+		try {
+			_doc.STATUS = constants.EXP_STATS.APP;
+			await _doc.save();
+			setData(data.filter(row => row.SR_NO !== _doc.SR_NO));
+		} catch (error) {
+			setError(error.message);
+		}
+	}
+
+	async function showDocsModal(_id) {
+		try {
+			const doc = await getDoc(database.docs(_id));
+			if (doc.exists()) {
+				setDocs(doc.data().files);
+			} else {
+				setDocs([]);
+			}
+			setExpID(_id);
+			setDocsModal(true);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			onClose();
+		}
+	}
+
 	return (
 		<>
-			<Form.Group id='name' className='mb-2'>
-				<FloatingLabel label='Name'>
-					<Form.Control
-						readOnly={showTable}
-						value={name}
-						onChange={e => setName(e.target.value.toUpperCase())}
-						placeholder='d'
-					/>
-				</FloatingLabel>
-			</Form.Group>
-			<Form.Group id='ph' className='mb-2'>
-				<FloatingLabel label='Mobile Number or Registration Number'>
-					<Form.Control
-						readOnly={showTable}
-						value={ph}
-						onChange={e => setPh(e.target.value.toUpperCase())}
-						placeholder='d'
-					/>
-				</FloatingLabel>
-			</Form.Group>
-			<Button
-				onClick={() => (showTable ? onClear() : onOk())}
-				disabled={!showTable && !name && !ph}
-				className='w-100 mt-2'
-			>
-				{showTable ? 'Clear' : 'OK'}
-			</Button>
 			{showTable && (
 				<Table
 					striped
 					bordered
 					hover
+					responsive
 					variant='dark'
 					className='mt-2'
-					responsive
 				>
 					<thead>
 						<tr>
@@ -124,11 +106,14 @@ export default function IncomeQuery({ onClose, setError }) {
 							<th>Ammount</th>
 							<th>Mode of payment</th>
 							<th>Description</th>
+							<th>Status</th>
 							<th>Action</th>
+							<th>Add Supporting Docs</th>
+							<th>Approve</th>
 						</tr>
 					</thead>
 					<tbody>
-						{filteredData.map(d => (
+						{data.map(d => (
 							<tr key={d.SR_NO}>
 								<td>{d.TYPE}</td>
 								<td>{d.DATE}</td>
@@ -136,9 +121,23 @@ export default function IncomeQuery({ onClose, setError }) {
 								<td>{d.AMOUNT}</td>
 								<td>{d.MODE_OF_PAYMENT}</td>
 								<td>{d.DESCRIPTION}</td>
+								<td>{d.STATUS}</td>
 								<td>
 									<Button className='w-100' onClick={() => onView(d)}>
 										View
+									</Button>
+								</td>
+								<td>
+									<Button
+										className='w-100'
+										onClick={() => showDocsModal(d.SR_NO)}
+									>
+										Docs
+									</Button>
+								</td>
+								<td>
+									<Button className='w-100' onClick={() => approveBill(d)}>
+										Approve
 									</Button>
 								</td>
 							</tr>

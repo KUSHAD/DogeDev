@@ -22,6 +22,7 @@ import { database, firebaseStorage } from '../firebase';
 import { getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
 import { MdOpenInNew, MdDelete } from 'react-icons/md';
 import DeleteDocModal from './Query/DeleteDocModal';
+import ApproveQuery from './Query/ApproveQuery';
 
 export default function Expenditure() {
 	const { fields } = useFetchMaster();
@@ -54,6 +55,7 @@ export default function Expenditure() {
 	const [docs, setDocs] = useState([]);
 	const [docsModal, setDocsModal] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
+	const [approveModal, setApproveModal] = useState(false);
 	const { user } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
@@ -216,6 +218,21 @@ export default function Expenditure() {
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
+			<Prompt
+				header='Approve Bills'
+				isOpen={approveModal}
+				onClose={() => setApproveModal(false)}
+				body={
+					<ApproveQuery
+						setExpID={setExpID}
+						setDocs={setDocs}
+						setError={setError}
+						setDocsModal={setDocsModal}
+						onClose={() => setApproveModal(false)}
+					/>
+				}
+			/>
+
 			<Loading isOpen={isSubmitting || isDisabled} />
 			<Centered>
 				<Card>
@@ -576,6 +593,13 @@ export default function Expenditure() {
 									Query
 								</Button>
 							</div>
+							<Button
+								onClick={() => setApproveModal(true)}
+								variant='secondary'
+								className='mt-2 w-100'
+							>
+								Approve Bills
+							</Button>
 						</Form>
 					</Card.Body>
 				</Card>

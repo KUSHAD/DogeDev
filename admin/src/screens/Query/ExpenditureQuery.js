@@ -23,13 +23,18 @@ export default function ExpenditureQuery({
 	const [showTable, setShowTable] = useState(false);
 	const [filteredData, setFilteredData] = useState([]);
 	const fetchData = useCallback(async () => {
-		const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
-		await doc.useServiceAccountAuth(clientCreds);
-		await doc.loadInfo();
-		const sheet = doc.sheetsByIndex[1];
-		const rows = await sheet.getRows();
-		setData(rows);
-	}, []);
+		try {
+			const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
+			await doc.useServiceAccountAuth(clientCreds);
+			await doc.loadInfo();
+			const sheet = doc.sheetsByIndex[1];
+			const rows = await sheet.getRows();
+			setData(rows);
+		} catch (error) {
+			setError(error.message);
+			onClose();
+		}
+	}, [setError, onClose]);
 	useEffect(() => {
 		fetchData();
 		return () => {
@@ -157,8 +162,8 @@ export default function ExpenditureQuery({
 								<td>{d.DATE}</td>
 								<td>{d.NAME}</td>
 								<td>{d.AMOUNT}</td>
-								<td>{d.MODE_OF_PAYMENT}</td>
 								<td>{d.STATUS}</td>
+								<td>{d.MODE_OF_PAYMENT}</td>
 								<td>{d.DESCRIPTION}</td>
 								<td>
 									<Button className='w-100' onClick={() => onView(d)}>
