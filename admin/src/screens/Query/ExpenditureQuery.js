@@ -6,6 +6,8 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
+import { getDoc } from 'firebase/firestore/lite';
+import { database } from '../../firebase';
 
 export default function ExpenditureQuery({
 	setIsOpen,
@@ -13,6 +15,10 @@ export default function ExpenditureQuery({
 	onClose,
 	setSrl,
 	setIsDownload,
+	setDocsModal,
+	setError,
+	setDocs,
+	setExpID,
 }) {
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
@@ -78,6 +84,24 @@ export default function ExpenditureQuery({
 		setIsOpen(true);
 		onClose();
 	}
+
+	async function showDocsModal(_id) {
+		try {
+			const doc = await getDoc(database.docs(_id));
+			if (doc.exists()) {
+				setDocs(doc.data().files);
+			} else {
+				setDocs([]);
+			}
+			setExpID(_id);
+			setDocsModal(true);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			onClose();
+		}
+	}
+
 	return (
 		<>
 			<Form.Group id='name' className='mb-2'>
@@ -125,6 +149,7 @@ export default function ExpenditureQuery({
 							<th>Mode of payment</th>
 							<th>Description</th>
 							<th>Action</th>
+							<th>Add Supporting Docs</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -139,6 +164,14 @@ export default function ExpenditureQuery({
 								<td>
 									<Button className='w-100' onClick={() => onView(d)}>
 										View
+									</Button>
+								</td>
+								<td>
+									<Button
+										className='w-100'
+										onClick={() => showDocsModal(d.SR_NO)}
+									>
+										Docs
 									</Button>
 								</td>
 							</tr>

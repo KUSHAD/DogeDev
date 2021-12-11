@@ -17,6 +17,12 @@ import { useAuthProvider } from '../contexts/Auth';
 import Prompt from '../components/Prompt';
 import ExpenditureQuery from './Query/ExpenditureQuery';
 import { useFetchMaster } from '../contexts/FetchMaster';
+import { toBase64 } from '../toBase64';
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+import { database, firebaseStorage } from '../firebase';
+import { getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
+import { MdOpenInNew, MdDelete } from 'react-icons/md';
+import DeleteDocModal from './Query/DeleteDocModal';
 
 export default function Expenditure() {
 	const { fields } = useFetchMaster();
@@ -45,13 +51,21 @@ export default function Expenditure() {
 			subBy: '',
 		},
 	});
+	const [fileName, setFileName] = useState('');
+	const [docs, setDocs] = useState([]);
 	const [isDownload, setIsDownload] = useState(true);
+	const [docsModal, setDocsModal] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
 	const { user } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [srl, setSrl] = useState('');
+	const [newFile, setNewFile] = useState('');
+	const [isDisabled, setIsDisabled] = useState(false);
+	const [expID, setExpID] = useState('');
+	const [deleteDocModal, setDeleteDocModal] = useState(false);
+	const [deleteDoc, setDeleteDoc] = useState('');
 	const [pdfData, setPdfData] = useState({
 		type: 'CONSTRUCTION MATERIAL',
 		desc: '',
@@ -143,12 +157,76 @@ export default function Expenditure() {
 			setError(error.message);
 		}
 	}
+
+	async function handleFileChange(e) {
+		try {
+			setError('');
+			setSuccess('');
+			const file = e.target.files[0];
+
+			if (!file) return;
+
+			if (file.size > 1024 * 1024 * 2)
+				return setError('File size should be maximum 2mb');
+
+			if (
+				file.type !== 'image/jpeg' &&
+				file.type !== 'image/png' &&
+				file.type !== 'application/pdf'
+			)
+				return setError('Please upload a .jpeg or .jpg or .png  or .pdf file');
+
+			setFileName(file.name);
+
+			toBase64(file)
+				.then(res => {
+					setNewFile(res);
+				})
+				.catch(error => {
+					setError(error.message);
+				});
+		} catch (error) {
+			setError(error.message);
+		}
+	}
+
+	async function onUploadFile() {
+		try {
+			setError('');
+			setIsDisabled(true);
+			const storageRef = ref(firebaseStorage, `admin-exp-docs/${fileName}`);
+			const uploadTask = await uploadString(storageRef, newFile, 'data_url');
+			const fileURL = await getDownloadURL(uploadTask.ref);
+			const doc = await getDoc(database.docs(expID));
+			if (doc.exists()) {
+				updateDoc(database.docs(expID), {
+					files: [...doc.data().files, fileURL],
+				});
+			} else {
+				setDoc(database.docs(expID), {
+					files: [fileURL],
+				});
+			}
+			setDocs([...doc.data().files, fileURL]);
+			setFileName('');
+			setNewFile('');
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsDisabled(false);
+		}
+	}
+
 	return (
 		<>
 			<Prompt
 				header='Search Expenditure'
 				body={
 					<ExpenditureQuery
+						setExpID={setExpID}
+						setDocs={setDocs}
+						setError={setError}
+						setDocsModal={setDocsModal}
 						onClose={() => setModalOpen(false)}
 						setIsOpen={setIsOpen}
 						setPDFData={setPdfData}
@@ -159,7 +237,7 @@ export default function Expenditure() {
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
-			<Loading isOpen={isSubmitting} />
+			<Loading isOpen={isSubmitting || isDisabled} />
 			<Centered>
 				<Card>
 					<Card.Body>
@@ -602,6 +680,109 @@ export default function Expenditure() {
 					</PDFDownloadLink>
 				</Offcanvas.Body>
 			</Offcanvas>
+			<Offcanvas
+				show={docsModal}
+				onHide={() => {
+					setDocsModal(false);
+					setFileName('');
+					setNewFile('');
+				}}
+				backdrop={false}
+			>
+				<Offcanvas.Header closeButton closeLabel='Close'>
+					<Offcanvas.Title>Supporting Docs</Offcanvas.Title>
+				</Offcanvas.Header>
+				<Offcanvas.Body>
+					{docs.map(doc => (
+						<div className='d-flex flex-column' key={doc}>
+							<iframe
+								className='justify-content-center'
+								src={doc}
+								title={doc}
+							/>
+							<div className='d-flex flex-row'>
+								<Button
+									variant='outline-primary'
+									className='w-50 me-2'
+									onClick={() => window.open(doc)}
+								>
+									<MdOpenInNew /> Open in a new tab
+								</Button>
+								<Button
+									variant='outline-danger'
+									onClick={() => {
+										setDeleteDoc(doc);
+										setDeleteDocModal(true);
+									}}
+									className='w-50 ms-2'
+								>
+									<MdDelete />
+									Delete Doc
+								</Button>
+							</div>
+						</div>
+					))}
+
+					{newFile && (
+						<>
+							<Form.Label className='mt-2'>New File</Form.Label>
+							<iframe
+								width='100%'
+								className='mb-2'
+								src={newFile}
+								title='newFile'
+								style={{
+									display: newFile ? 'block' : 'none',
+								}}
+							/>
+						</>
+					)}
+
+					<Form.Label className='mt-2'>Add New Document</Form.Label>
+					<Form.Control
+						className='mb-2'
+						type='file'
+						accept='image/* application/pdf'
+						multiple={false}
+						onChange={handleFileChange}
+						disabled={isDisabled}
+						readOnly={isDisabled}
+					/>
+					{newFile && (
+						<Button
+							disabled={isDisabled}
+							variant='outline-primary'
+							className='w-100'
+							onClick={onUploadFile}
+						>
+							Upload
+						</Button>
+					)}
+				</Offcanvas.Body>
+			</Offcanvas>
+			<Prompt
+				header='Delete Doc'
+				body={
+					<DeleteDocModal
+						expID={expID}
+						docs={docs}
+						deleteDoc={deleteDoc}
+						onClose={() => {
+							setDeleteDoc('');
+							setDeleteDocModal(false);
+						}}
+						setDocs={setDocs}
+						setError={setError}
+						setIsDisabled={setIsDisabled}
+						isDisabled={isDisabled}
+					/>
+				}
+				isOpen={deleteDocModal}
+				onClose={() => {
+					setDeleteDoc('');
+					setDeleteDocModal(false);
+				}}
+			/>
 		</>
 	);
 }

@@ -15,16 +15,18 @@ A Demo Admin App For Small Schools, Tutions, Institutes, etc. Created By KUSHAD 
 9. System Access To Only Authorised Phone Numbers With OTP Verification
 10. All Data Like Admission Subjects, Expenditure Types And Income Types Are Fetched From Google Spreadsheet
 11. All The Students' , Teachers' And Group-D Staffs' Data Are Stored In Google Spreadsheet
+12. Document Attachment with expenditure
 
 ## Technical Things
 
 1. React For Frontend
 2. React Bootstrap For Styling
 3. React Router Dom For Routing
-4. Firebase For Storing Student Attendance And For Phone Authentication
+4. Firebase For Storing Student Attendance, For Phone Authentication And For Storing Document Links
 5. Google Spreadsheet Dependency For Connecting And Interacting With Google Spreadsheet
 6. React Hook Form For Form Validation
 7. Firebase Hosting For Deployment
+8. Firebase Storage For Storing Documents
 
 ## Screen Shots
 
