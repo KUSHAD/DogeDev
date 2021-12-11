@@ -10,14 +10,13 @@ import Alert from 'react-bootstrap/Alert';
 import { useState } from 'react';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import clientCreds from '../client_creds.json';
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import ExpenditurePDF from '../pdfs/ExpenditurePDF';
 import { useAuthProvider } from '../contexts/Auth';
 import Prompt from '../components/Prompt';
 import ExpenditureQuery from './Query/ExpenditureQuery';
 import { useFetchMaster } from '../contexts/FetchMaster';
 import { toBase64 } from '../toBase64';
+import paymentBill from '../templates/payment';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import { database, firebaseStorage } from '../firebase';
 import { getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
@@ -53,34 +52,16 @@ export default function Expenditure() {
 	});
 	const [fileName, setFileName] = useState('');
 	const [docs, setDocs] = useState([]);
-	const [isDownload, setIsDownload] = useState(true);
 	const [docsModal, setDocsModal] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
 	const { user } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
-	const [isOpen, setIsOpen] = useState(false);
-	const [srl, setSrl] = useState('');
 	const [newFile, setNewFile] = useState('');
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [expID, setExpID] = useState('');
 	const [deleteDocModal, setDeleteDocModal] = useState(false);
 	const [deleteDoc, setDeleteDoc] = useState('');
-	const [pdfData, setPdfData] = useState({
-		type: 'CONSTRUCTION MATERIAL',
-		desc: '',
-		amt: '',
-		date: '',
-		name: '',
-		ph: '',
-		mode: 'CASH',
-		cashMode: '',
-		chequeNo: '',
-		chequeDate: '',
-		upiId: '',
-		upiPh: '',
-		bank: '',
-	});
 	const watchFields = watch();
 	async function addDataToSheet(data) {
 		const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
@@ -110,12 +91,10 @@ export default function Expenditure() {
 		if (month > 3) {
 			year = new Date().getFullYear();
 			nextYear = year + 1;
-			await setSrl(`SV-PAY-${ans}-${year}-${nextYear}`);
 		}
 		if (month <= 3) {
 			nextYear = new Date().getFullYear();
 			year = nextYear - 1;
-			await setSrl(`SV-PAY-${ans}-${year}-${nextYear}`);
 		}
 
 		const d = new Date(data.date);
@@ -130,6 +109,7 @@ export default function Expenditure() {
 			DATE: dateString,
 			NAME: data.name.toUpperCase(),
 			MOBILE_NUMBER: data.ph.toUpperCase(),
+			STATUS: constants.EXP_STATS.PEN,
 			MODE_OF_PAYMENT: data.mode.toUpperCase(),
 			PAN_CARD_OR_AADHAR_CARD_NUMBER: data.cashMode.toUpperCase(),
 			CHEQUE_OR_DD_NO: data.chequeNo.toUpperCase(),
@@ -140,19 +120,25 @@ export default function Expenditure() {
 			RECEIPT_FILENAME: `PAYMENT_${ans}.pdf`,
 			ISSUED_BY: user,
 		};
+		setExpID(`SV-PAY-${ans}-${year}-${nextYear}`);
 		await sheet.addRow(row);
+		setDocs([]);
+		const bill = await paymentBill({
+			...data,
+			srNo: `SV-PAY-${ans}-${year}-${nextYear}`,
+		});
+		const winUrl = URL.createObjectURL(new Blob([bill], { type: 'text/html' }));
+		window.open(winUrl, 'win', `width=800,height=400,screenX=200,screenY=200`);
 	}
 	async function onSubmit(data) {
 		try {
-			await setIsDownload(true);
-			await setIsOpen(false);
-			await setPdfData(data);
 			await setError('');
 			await setSuccess('');
 			await addDataToSheet(data);
 			setSuccess('Data added Successfully');
+			await setDocsModal(true);
+
 			reset();
-			setIsOpen(true);
 		} catch (error) {
 			setError(error.message);
 		}
@@ -169,12 +155,8 @@ export default function Expenditure() {
 			if (file.size > 1024 * 1024 * 2)
 				return setError('File size should be maximum 2mb');
 
-			if (
-				file.type !== 'image/jpeg' &&
-				file.type !== 'image/png' &&
-				file.type !== 'application/pdf'
-			)
-				return setError('Please upload a .jpeg or .jpg or .png  or .pdf file');
+			if (file.type !== 'image/jpeg' && file.type !== 'image/png')
+				return setError('Please upload a .jpeg or .jpg or .png  file');
 
 			setFileName(file.name);
 
@@ -202,12 +184,13 @@ export default function Expenditure() {
 				updateDoc(database.docs(expID), {
 					files: [...doc.data().files, fileURL],
 				});
+				setDocs([...doc.data().files, fileURL]);
 			} else {
 				setDoc(database.docs(expID), {
 					files: [fileURL],
 				});
+				setDocs([fileURL]);
 			}
-			setDocs([...doc.data().files, fileURL]);
 			setFileName('');
 			setNewFile('');
 		} catch (err) {
@@ -228,10 +211,6 @@ export default function Expenditure() {
 						setError={setError}
 						setDocsModal={setDocsModal}
 						onClose={() => setModalOpen(false)}
-						setIsOpen={setIsOpen}
-						setPDFData={setPdfData}
-						setSrl={setSrl}
-						setIsDownload={setIsDownload}
 					/>
 				}
 				isOpen={modalOpen}
@@ -262,7 +241,6 @@ export default function Expenditure() {
 							<Form.Group id='t' className='mb-2'>
 								<FloatingLabel label='Type *'>
 									<Form.Select
-										disabled={isSubmitting || isOpen}
 										isInvalid={errors.type}
 										isValid={!errors.type}
 										{...register('type', {
@@ -287,8 +265,6 @@ export default function Expenditure() {
 								<FloatingLabel label='Date *'>
 									<Form.Control
 										type='date'
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										isInvalid={errors?.date}
 										isValid={dirtyFields?.date && !errors?.date}
 										{...register('date', {
@@ -304,8 +280,6 @@ export default function Expenditure() {
 							<Form.Group id='name' className='mb-2'>
 								<FloatingLabel label='Name *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='text'
 										isInvalid={errors?.name}
 										isValid={dirtyFields?.name && !errors?.name}
@@ -322,8 +296,6 @@ export default function Expenditure() {
 							<Form.Group id='amt' className='mb-2'>
 								<FloatingLabel label='Ammount *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='tel'
 										isInvalid={errors?.amt}
 										isValid={dirtyFields?.amt && !errors?.amt}
@@ -340,7 +312,6 @@ export default function Expenditure() {
 							<Form.Group id='mode' className='mb-2'>
 								<FloatingLabel label='Mode Of Payment *'>
 									<Form.Select
-										disabled={isSubmitting || isOpen}
 										{...register('mode', {
 											required: 'Payment mode is required',
 										})}
@@ -361,8 +332,6 @@ export default function Expenditure() {
 								<Form.Group id='pan' className='mb-2'>
 									<FloatingLabel label='Pan number or Aadhaar card number *'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='tel'
 											isInvalid={errors?.cashMode}
 											isValid={dirtyFields?.cashMode && !errors?.cashMode}
@@ -393,8 +362,6 @@ export default function Expenditure() {
 								constants.SELECT_OPTIONS.EXPENDITURE.PAYMENT[4] ? (
 								<Form.Group id='chqno' className='mb-2'>
 									<FloatingLabel
-										disabled={isSubmitting}
-										readOnly={isSubmitting}
 										label={`${
 											watchFields.mode ===
 											constants.SELECT_OPTIONS.EXPENDITURE.PAYMENT[1]
@@ -407,8 +374,6 @@ export default function Expenditure() {
 									>
 										<Form.Control
 											type='tel'
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											isInvalid={errors?.chequeNo}
 											isValid={dirtyFields?.chequeNo && !errors?.chequeNo}
 											{...register('chequeNo', {
@@ -460,8 +425,6 @@ export default function Expenditure() {
 										} *`}
 									>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='date'
 											isInvalid={errors?.chequeDate}
 											isValid={dirtyFields?.chequeDate && !errors?.chequeDate}
@@ -504,8 +467,6 @@ export default function Expenditure() {
 								<Form.Group id='chqdate' className='mb-2'>
 									<FloatingLabel label='Bank name *'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='text'
 											isInvalid={errors?.bank}
 											isValid={dirtyFields?.bank && !errors?.bank}
@@ -536,8 +497,6 @@ export default function Expenditure() {
 								<Form.Group id='upiId' className='mb-2'>
 									<FloatingLabel label='UPI Id or Mobile No.'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											isInvalid={errors?.upiId}
 											isValid={
 												dirtyFields?.upiId &&
@@ -562,8 +521,6 @@ export default function Expenditure() {
 								<FloatingLabel label='Mob no. *'>
 									<Form.Control
 										type='tel'
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										isInvalid={errors?.ph}
 										isValid={dirtyFields?.ph && !errors?.ph && watchFields.ph}
 										{...register('ph', {
@@ -582,8 +539,6 @@ export default function Expenditure() {
 							<Form.Group id='desc' className='mb-2'>
 								<FloatingLabel label='Description *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='text'
 										isInvalid={errors?.desc}
 										isValid={dirtyFields?.desc && !errors?.desc}
@@ -601,8 +556,6 @@ export default function Expenditure() {
 							<Form.Group id='f-submit'>
 								<FloatingLabel label='Bill Submmitted By'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='text'
 										isInvalid={errors?.subBy}
 										isValid={dirtyFields?.subBy && !errors?.subBy}
@@ -612,11 +565,7 @@ export default function Expenditure() {
 								</FloatingLabel>
 							</Form.Group>
 							<div className='d-flex flex-row justify-content-between'>
-								<Button
-									type='submit'
-									disabled={isSubmitting || isOpen}
-									className='w-50 mt-2 me-2'
-								>
+								<Button type='submit' className='w-50 mt-2 me-2'>
 									Add
 								</Button>
 								<Button
@@ -631,55 +580,6 @@ export default function Expenditure() {
 					</Card.Body>
 				</Card>
 			</Centered>
-			<Offcanvas show={isOpen} onHide={() => setIsOpen(false)} backdrop={false}>
-				<Offcanvas.Header closeButton closeLabel='Close'>
-					<Offcanvas.Title>PDF Options</Offcanvas.Title>
-				</Offcanvas.Header>
-				<Offcanvas.Body>
-					<PDFViewer
-						showToolbar={false}
-						id='payment-pdf-viewer'
-						name='payment-pdf-viewer'
-						height='56.5%'
-						width='100%'
-					>
-						<ExpenditurePDF data={{ ...pdfData, srNo: srl }} />
-					</PDFViewer>
-					<PDFDownloadLink
-						className='d-flex flex-row justify-content-between text-decoration-none'
-						fileName={`PAYMENT_${srl}`}
-						document={<ExpenditurePDF data={{ ...pdfData, srNo: srl }} />}
-					>
-						{({ blob, url, loading, error }) => {
-							return (
-								<>
-									<Button
-										disabled={loading || error}
-										variant={error ? 'danger' : 'outline-primary'}
-										className={isDownload ? 'w-50 me-2' : 'w-100'}
-										onClick={e => {
-											e.preventDefault();
-											window.frames['payment-pdf-viewer'].focus();
-											window.frames['payment-pdf-viewer'].print();
-										}}
-									>
-										{error ? 'There was an error :-' + error.message : 'Print'}
-									</Button>
-									{isDownload && (
-										<Button
-											disabled={loading || error}
-											variant={error ? 'danger' : 'outline-primary'}
-											className='w-50 ms-2'
-										>
-											{error ? 'There was an error :-' + error.message : 'Save'}
-										</Button>
-									)}
-								</>
-							);
-						}}
-					</PDFDownloadLink>
-				</Offcanvas.Body>
-			</Offcanvas>
 			<Offcanvas
 				show={docsModal}
 				onHide={() => {
@@ -742,11 +642,9 @@ export default function Expenditure() {
 					<Form.Control
 						className='mb-2'
 						type='file'
-						accept='image/* application/pdf'
+						accept='image/*'
 						multiple={false}
 						onChange={handleFileChange}
-						disabled={isDisabled}
-						readOnly={isDisabled}
 					/>
 					{newFile && (
 						<Button

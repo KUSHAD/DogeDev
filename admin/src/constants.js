@@ -79,6 +79,10 @@ const constants = {
 		{ 41: 'S' },
 		{ 42: 'S' },
 	],
+	EXP_STATS: {
+		APP: 'APPROVED',
+		PEN: 'PENDING',
+	},
 };
 
 export default constants;

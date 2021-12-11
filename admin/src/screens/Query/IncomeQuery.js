@@ -6,14 +6,9 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
+import receiptBill from '../../templates/receipt';
 
-export default function IncomeQuery({
-	setIsOpen,
-	setPDFData,
-	onClose,
-	setSrl,
-	setIsDownload,
-}) {
+export default function IncomeQuery({ onClose }) {
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
 	const [data, setData] = useState([]);
@@ -58,9 +53,8 @@ export default function IncomeQuery({
 		setPh('');
 		setShowTable(false);
 	}
-	function onView(data) {
-		setSrl(data.SR_NO);
-		setPDFData({
+	async function onView(data) {
+		const bill = await receiptBill({
 			type: data.TYPE,
 			desc: data.DESCRIPTION,
 			amt: data.AMOUNT,
@@ -73,9 +67,10 @@ export default function IncomeQuery({
 			chequeDate: data.DATE_OF_CHEQUE_OR_DD_ISSUE,
 			upiId: data.UPI_ID,
 			bank: data.BANK,
+			srNo: data.SR_NO,
 		});
-		setIsDownload(false);
-		setIsOpen(true);
+		const winUrl = URL.createObjectURL(new Blob([bill], { type: 'text/html' }));
+		window.open(winUrl, 'win', `width=800,height=400,screenX=200,screenY=200`);
 		onClose();
 	}
 	return (

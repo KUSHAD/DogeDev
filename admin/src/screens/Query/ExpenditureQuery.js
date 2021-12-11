@@ -8,13 +8,10 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
 import { getDoc } from 'firebase/firestore/lite';
 import { database } from '../../firebase';
+import paymentBill from '../../templates/payment';
 
 export default function ExpenditureQuery({
-	setIsOpen,
-	setPDFData,
 	onClose,
-	setSrl,
-	setIsDownload,
 	setDocsModal,
 	setError,
 	setDocs,
@@ -64,9 +61,8 @@ export default function ExpenditureQuery({
 		setPh('');
 		setShowTable(false);
 	}
-	function onView(data) {
-		setSrl(data.SR_NO);
-		setPDFData({
+	async function onView(data) {
+		const bill = await paymentBill({
 			type: data.TYPE,
 			desc: data.DESCRIPTION,
 			amt: data.AMOUNT,
@@ -79,9 +75,10 @@ export default function ExpenditureQuery({
 			chequeDate: data.DATE_OF_CHEQUE_OR_DD_ISSUE,
 			upiId: data.UPI_ID,
 			bank: data.BANK,
+			srNo: data.SR_NO,
 		});
-		setIsDownload(false);
-		setIsOpen(true);
+		const winUrl = URL.createObjectURL(new Blob([bill], { type: 'text/html' }));
+		window.open(winUrl, 'win', `width=800,height=400,screenX=200,screenY=200`);
 		onClose();
 	}
 
@@ -148,6 +145,7 @@ export default function ExpenditureQuery({
 							<th>Ammount</th>
 							<th>Mode of payment</th>
 							<th>Description</th>
+							<th>Status</th>
 							<th>Action</th>
 							<th>Add Supporting Docs</th>
 						</tr>
@@ -160,6 +158,7 @@ export default function ExpenditureQuery({
 								<td>{d.NAME}</td>
 								<td>{d.AMOUNT}</td>
 								<td>{d.MODE_OF_PAYMENT}</td>
+								<td>{d.STATUS}</td>
 								<td>{d.DESCRIPTION}</td>
 								<td>
 									<Button className='w-100' onClick={() => onView(d)}>

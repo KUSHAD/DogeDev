@@ -10,13 +10,11 @@ import Alert from 'react-bootstrap/Alert';
 import { useState } from 'react';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import clientCreds from '../client_creds.json';
-import ReceiptPDF from '../pdfs/ReceiptPDF';
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
-import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useAuthProvider } from '../contexts/Auth';
 import Prompt from '../components/Prompt';
 import IncomeQuery from './Query/IncomeQuery';
 import { useFetchMaster } from '../contexts/FetchMaster';
+import receiptBill from '../templates/receipt';
 
 export default function Income() {
 	const { fields } = useFetchMaster();
@@ -47,25 +45,8 @@ export default function Income() {
 	const { user } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
-	const [isOpen, setIsOpen] = useState(false);
-	const [srl, setSrl] = useState('');
 	const [modalOpen, setModalOpen] = useState(false);
-	const [isDownload, setIsDownload] = useState(true);
-	const [pdfData, setPdfData] = useState({
-		type: 'DONATION',
-		desc: '',
-		amt: '',
-		date: '',
-		name: '',
-		ph: '',
-		mode: 'CASH',
-		cashMode: '',
-		chequeNo: '',
-		chequeDate: '',
-		upiId: '',
-		upiPh: '',
-		bank: '',
-	});
+
 	const watchFields = watch();
 	async function addDataToSheet(data) {
 		const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
@@ -94,12 +75,10 @@ export default function Income() {
 		if (month > 3) {
 			year = new Date().getFullYear();
 			nextYear = year + 1;
-			await setSrl(`SV-RCPT-${ans}-${year}-${nextYear}`);
 		}
 		if (month <= 3) {
 			nextYear = new Date().getFullYear();
 			year = nextYear - 1;
-			await setSrl(`SV-RCPT-${ans}-${year}-${nextYear}`);
 		}
 		const d = new Date(data.date);
 		const dateString =
@@ -123,18 +102,20 @@ export default function Income() {
 			ISSUED_BY: user,
 		};
 		await sheet.addRow(row);
+		const bill = await receiptBill({
+			...data,
+			srNo: `SV-PAY-${ans}-${year}-${nextYear}`,
+		});
+		const winUrl = URL.createObjectURL(new Blob([bill], { type: 'text/html' }));
+		window.open(winUrl, 'win', `width=800,height=400,screenX=200,screenY=200`);
 	}
 	async function onSubmit(data) {
 		try {
-			await setIsDownload(true);
-			await setIsOpen(false);
-			await setPdfData(data);
 			await setError('');
 			await setSuccess('');
 			await addDataToSheet(data);
 			setSuccess('Data added Successfully');
 			reset();
-			setIsOpen(true);
 		} catch (error) {
 			setError(error.message);
 		}
@@ -144,15 +125,7 @@ export default function Income() {
 			<Loading isOpen={isSubmitting} />
 			<Prompt
 				header='Search Receipt'
-				body={
-					<IncomeQuery
-						onClose={() => setModalOpen(false)}
-						setIsOpen={setIsOpen}
-						setPDFData={setPdfData}
-						setSrl={setSrl}
-						setIsDownload={setIsDownload}
-					/>
-				}
+				body={<IncomeQuery onClose={() => setModalOpen(false)} />}
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
@@ -180,7 +153,6 @@ export default function Income() {
 							<Form.Group id='t' className='mb-2'>
 								<FloatingLabel label='Type *'>
 									<Form.Select
-										disabled={isSubmitting || isOpen}
 										isInvalid={errors.type}
 										isValid={!errors.type}
 										{...register('type', {
@@ -205,8 +177,6 @@ export default function Income() {
 								<FloatingLabel label='Date *'>
 									<Form.Control
 										type='date'
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										isInvalid={errors?.date}
 										isValid={dirtyFields?.date && !errors?.date}
 										{...register('date', {
@@ -222,8 +192,6 @@ export default function Income() {
 							<Form.Group id='name' className='mb-2'>
 								<FloatingLabel label='Name *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='text'
 										isInvalid={errors?.name}
 										isValid={dirtyFields?.name && !errors?.name}
@@ -240,8 +208,6 @@ export default function Income() {
 							<Form.Group id='amt' className='mb-2'>
 								<FloatingLabel label='Ammount *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='tel'
 										isInvalid={errors?.amt}
 										isValid={dirtyFields?.amt && !errors?.amt}
@@ -258,7 +224,6 @@ export default function Income() {
 							<Form.Group id='mode' className='mb-2'>
 								<FloatingLabel label='Mode Of Payment *'>
 									<Form.Select
-										disabled={isSubmitting || isOpen}
 										{...register('mode', {
 											required: 'Payment mode is required',
 										})}
@@ -279,8 +244,6 @@ export default function Income() {
 								<Form.Group id='pan' className='mb-2'>
 									<FloatingLabel label='Pan number or Aadhaar card number *'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='tel'
 											isInvalid={errors?.cashMode}
 											isValid={dirtyFields?.cashMode && !errors?.cashMode}
@@ -310,8 +273,6 @@ export default function Income() {
 								constants.SELECT_OPTIONS.INCOME.PAYMENT[4] ? (
 								<Form.Group id='chqno' className='mb-2'>
 									<FloatingLabel
-										disabled={isSubmitting}
-										readOnly={isSubmitting}
 										label={`${
 											watchFields.mode ===
 											constants.SELECT_OPTIONS.INCOME.PAYMENT[1]
@@ -324,8 +285,6 @@ export default function Income() {
 									>
 										<Form.Control
 											type='tel'
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											isInvalid={errors?.chequeNo}
 											isValid={dirtyFields?.chequeNo && !errors?.chequeNo}
 											{...register('chequeNo', {
@@ -376,8 +335,6 @@ export default function Income() {
 										} *`}
 									>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='date'
 											isInvalid={errors?.chequeDate}
 											isValid={dirtyFields?.chequeDate && !errors?.chequeDate}
@@ -419,8 +376,6 @@ export default function Income() {
 								<Form.Group id='chqdate' className='mb-2'>
 									<FloatingLabel label='Bank name *'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											type='text'
 											isInvalid={errors?.bank}
 											isValid={dirtyFields?.bank && !errors?.bank}
@@ -451,8 +406,6 @@ export default function Income() {
 								<Form.Group id='upiId' className='mb-2'>
 									<FloatingLabel label='UPI Id or Mobile No.'>
 										<Form.Control
-											disabled={isSubmitting || isOpen}
-											readOnly={isSubmitting || isOpen}
 											isInvalid={errors?.upiId}
 											isValid={
 												dirtyFields?.upiId &&
@@ -477,8 +430,6 @@ export default function Income() {
 								<FloatingLabel label='Mob no./Reg. Id (For Students)'>
 									<Form.Control
 										type='text'
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										isInvalid={errors?.ph}
 										isValid={dirtyFields?.ph && !errors?.ph && watchFields.ph}
 										{...register('ph', {
@@ -494,8 +445,6 @@ export default function Income() {
 							<Form.Group id='desc' className='mb-2'>
 								<FloatingLabel label='Description *'>
 									<Form.Control
-										disabled={isSubmitting || isOpen}
-										readOnly={isSubmitting || isOpen}
 										type='text'
 										isInvalid={errors?.desc}
 										isValid={dirtyFields?.desc && !errors?.desc}
@@ -511,11 +460,7 @@ export default function Income() {
 								</Form.Text>
 							</Form.Group>
 							<div className='d-flex flex-row justify-content-between'>
-								<Button
-									type='submit'
-									disabled={isSubmitting || isOpen}
-									className='w-50 mt-2 me-2'
-								>
+								<Button type='submit' className='w-50 mt-2 me-2'>
 									Add
 								</Button>
 								<Button
@@ -530,55 +475,6 @@ export default function Income() {
 					</Card.Body>
 				</Card>
 			</Centered>
-			<Offcanvas show={isOpen} onHide={() => setIsOpen(false)} backdrop={false}>
-				<Offcanvas.Header closeButton closeLabel='Close'>
-					<Offcanvas.Title>PDF Options</Offcanvas.Title>
-				</Offcanvas.Header>
-				<Offcanvas.Body>
-					<PDFViewer
-						showToolbar={false}
-						id='receipt-pdf-viewer'
-						name='receipt-pdf-viewer'
-						height='56.5%'
-						width='100%'
-					>
-						<ReceiptPDF data={{ ...pdfData, srNo: srl }} />
-					</PDFViewer>
-					<PDFDownloadLink
-						className='d-flex flex-row justify-content-between text-decoration-none'
-						fileName={`${pdfData.type}_${srl}`}
-						document={<ReceiptPDF data={{ ...pdfData, srNo: srl }} />}
-					>
-						{({ blob, url, loading, error }) => {
-							return (
-								<>
-									<Button
-										disabled={loading || error}
-										variant={error ? 'danger' : 'outline-primary'}
-										className={isDownload ? 'w-50 me-2' : 'w-100'}
-										onClick={e => {
-											e.preventDefault();
-											window.frames['receipt-pdf-viewer'].focus();
-											window.frames['receipt-pdf-viewer'].print();
-										}}
-									>
-										{error ? 'There was an error :-' + error.message : 'Print'}
-									</Button>
-									{isDownload && (
-										<Button
-											disabled={loading || error}
-											variant={error ? 'danger' : 'outline-primary'}
-											className='w-50 ms-2'
-										>
-											{error ? 'There was an error :-' + error.message : 'Save'}
-										</Button>
-									)}
-								</>
-							);
-						}}
-					</PDFDownloadLink>
-				</Offcanvas.Body>
-			</Offcanvas>
 		</>
 	);
 }
