@@ -11,7 +11,7 @@ A Demo Admin App For Small Schools, Tutions, Institutes, etc. Created By KUSHAD 
 
 ## DogeDev Restaurant App
 
-A Demo Restaurant App Created By DogeDev (KUSHAD CHAKRABORTY)
+A Demo Restaurant App Created By KUSHAD CHAKRABORTY
 
 <a href="https://github.com/KUSHAD/DogeDev/tree/master/restaurant">Repository Link</a>
 <a href="https://restaurant-dogedev.web.app/">Live Demo</a>
