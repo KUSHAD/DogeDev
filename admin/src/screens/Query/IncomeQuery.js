@@ -7,8 +7,10 @@ import Form from 'react-bootstrap/Form';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
 import receiptBill from '../../templates/receipt';
+import { useAuthProvider } from '../../contexts/Auth';
 
 export default function IncomeQuery({ onClose, setError }) {
+	const { user } = useAuthProvider();
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
 	const [data, setData] = useState([]);
@@ -41,14 +43,19 @@ export default function IncomeQuery({ onClose, setError }) {
 		let newData;
 		if (name && ph) {
 			newData = data.filter(
-				d => d.NAME.includes(name) && d.IDENTITY_NO.includes(ph)
+				d =>
+					d.NAME.includes(name) &&
+					d.IDENTITY_NO.includes(ph) &&
+					d.ISSUED_BY === user
 			);
 		}
 		if (!name && ph) {
-			newData = data.filter(d => d.IDENTITY_NO.includes(ph));
+			newData = data.filter(
+				d => d.IDENTITY_NO.includes(ph) && d.ISSUED_BY === user
+			);
 		}
 		if (name && !ph) {
-			newData = data.filter(d => d.NAME.includes(name));
+			newData = data.filter(d => d.NAME.includes(name) && d.ISSUED_BY === user);
 		}
 		setFilteredData(newData);
 		setShowTable(true);

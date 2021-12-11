@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
 
-export default function StudentQuery({ onClose, setIsOpen, setPDFData }) {
+export default function StudentQuery({ onClose }) {
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
 	const [data, setData] = useState([]);
@@ -52,20 +52,7 @@ export default function StudentQuery({ onClose, setIsOpen, setPDFData }) {
 		setPh('');
 		setShowTable(false);
 	}
-	function onPrint(data) {
-		setPDFData({
-			id: data.SR,
-			name: data.NAME,
-			subject: data.SUBJECT,
-			dob: data.DOB,
-			blood: data.BLOOD_GROUP,
-			father: data.FATHER,
-			mother: data.MOTHER,
-			address: data.ADDRESS,
-		});
-		setIsOpen(true);
-		onClose();
-	}
+
 	return (
 		<>
 			<Form.Group id='name' className='mb-2'>
@@ -113,7 +100,6 @@ export default function StudentQuery({ onClose, setIsOpen, setPDFData }) {
 							<th>DOB</th>
 							<th>Father's Name</th>
 							<th>Mother's Name</th>
-							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -125,11 +111,6 @@ export default function StudentQuery({ onClose, setIsOpen, setPDFData }) {
 								<td>{d.DOB}</td>
 								<td>{d.FATHER}</td>
 								<td>{d.MOTHER}</td>
-								<td>
-									<Button onClick={() => onPrint(d)} className='w-100'>
-										Print Reg.
-									</Button>
-								</td>
 							</tr>
 						))}
 					</tbody>

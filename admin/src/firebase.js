@@ -20,4 +20,8 @@ export const database = {
 		const dbCollection = collection(firebaseFirestore, 'admin-exp-docs');
 		return doc(dbCollection, id);
 	},
+	addDoc: id => {
+		const dbCollection = collection(firebaseFirestore, 'admin-admission-docs');
+		return doc(dbCollection, id);
+	},
 };

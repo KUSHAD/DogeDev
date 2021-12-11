@@ -156,7 +156,7 @@ export default function receiptBill(data) {
   <body>
     <div class="main__container">
       <div class="header__container">
-        <img src=""https://admin-dogedev.web.app/logo192.png" class="header__img" />
+        <img src="https://admin-dogedev.web.app/logo192.png" class="header__img" />
         <div class="header__details">
           <strong>${data?.srNo.split('-')[2]}</strong>
           <strong>Date:-${new Date(data?.date).toLocaleDateString()}</strong>

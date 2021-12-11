@@ -13,11 +13,17 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 import clientCreds from '../client_creds.json';
 import Prompt from '../components/Prompt';
 import StudentQuery from './Query/StudentQuery';
-import StudentUpdate from './Update/StudentUpdate';
 import { useFetchMaster } from '../contexts/FetchMaster';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
-import RegPDF from '../pdfs/RegPDF';
+import { toBase64 } from '../toBase64';
+
+import { getDownloadURL, ref, uploadString } from 'firebase/storage';
+
+import { database, firebaseStorage } from '../firebase';
+
+import { getDoc, setDoc, updateDoc } from 'firebase/firestore/lite';
+
+import { MdOpenInNew, MdDelete } from 'react-icons/md';
 
 export default function Admission() {
 	const { fields, setStudentsAdd, studentsAdd } = useFetchMaster();
@@ -34,7 +40,7 @@ export default function Admission() {
 			sex: 'MALE',
 			blood: 'NOT KNOWN',
 			dob: '',
-			sub: 'SKATING',
+			sub: 'MEMBER',
 			ed: '',
 			tel: '',
 			mother: '',
@@ -42,24 +48,21 @@ export default function Admission() {
 			address: '',
 			email: '',
 			wa: '',
-			dis: '',
+			aadhar: '',
+			pan: '',
 		},
 	});
 	const [isOpen, setIsOpen] = useState(false);
-	const [updateModal, setUpdateModal] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
 	const { user } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
-	const [pdfData, setPdfData] = useState({
-		id: '',
-		name: '',
-		subject: '',
-		dob: '',
-		father: '',
-		mother: '',
-		address: '',
-	});
+	const [fileName, setFileName] = useState('');
+	const [docs, setDocs] = useState([]);
+	const [isDisabled, setIsDisabled] = useState(false);
+	const [newFile, setNewFile] = useState('');
+	const [expID, setExpID] = useState('');
+
 	async function addDataToSheet(data) {
 		const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
 		await doc.useServiceAccountAuth(clientCreds);
@@ -75,18 +78,8 @@ export default function Admission() {
 			newRowLength = 1;
 		} else {
 			lastElem = rows[rows.length - 1];
-			if (lastElem.SR.split('-')[1].includes('STUDENT')) {
-				newRowLength =
-					Number(lastElem.SR.split('-')[1].replace('STUDENT', '')) + 1;
-			}
-			if (lastElem.SR.split('-')[1].includes('LABOUR')) {
-				newRowLength =
-					Number(lastElem.SR.split('-')[1].replace('LABOUR', '')) + 1;
-			}
-			if (lastElem.SR.split('-')[1].includes('TEACHER')) {
-				newRowLength =
-					Number(lastElem.SR.split('-')[1].replace('TEACHER', '')) + 1;
-			}
+			newRowLength =
+				Number(lastElem.SR.split('-')[1].replace('MEMBER', '')) + 1;
 		}
 		str = '' + newRowLength;
 		const pad = '000000';
@@ -108,13 +101,7 @@ export default function Admission() {
 		const doaDateString =
 			doa.getMonth() + 1 + '/' + doa.getDate() + '/' + doa.getFullYear();
 		let sr;
-		if (data.sub === 'LABOUR') {
-			sr = `SV-Labour${ans}-${year}-${nextYear}`.toUpperCase();
-		} else if (data.sub === 'TEACHER') {
-			sr = `SV-Teacher${ans}-${year}-${nextYear}`.toUpperCase();
-		} else {
-			sr = `SV-Student${ans}-${year}-${nextYear}`.toUpperCase();
-		}
+		sr = `SV-MEMBER${ans}-${year}-${nextYear}`.toUpperCase();
 		const row = {
 			SR: sr,
 			NAME: data.name.toUpperCase(),
@@ -129,11 +116,16 @@ export default function Admission() {
 			ADDRESS: data.address.toUpperCase(),
 			EMAIL: data.email.toUpperCase(),
 			WHATSAPP: data.wa,
-			DISEASE: data.dis.toUpperCase(),
+			AADHAR_CARD: data.aadhar,
+			PAN_CARD: data.pan,
 			ISSUED_BY: user,
 		};
 		await sheet.addRow(row);
 		setStudentsAdd([row, ...studentsAdd]);
+		setExpID(sr);
+		setNewFile('');
+		setFileName('');
+		setDocs([]);
 		setSuccess(`Data added Successfully! Registration ID :-  ${sr}`);
 	}
 	async function onSubmit(data) {
@@ -141,9 +133,69 @@ export default function Admission() {
 			await setError('');
 			await setSuccess('');
 			await addDataToSheet(data);
+			setIsOpen(true);
 			reset();
 		} catch (error) {
 			setError(error.message);
+		}
+	}
+
+	async function handleFileChange(e) {
+		try {
+			setError('');
+			setSuccess('');
+			const file = e.target.files[0];
+
+			if (!file) return;
+
+			if (file.size > 1024 * 1024 * 2)
+				return setError('File size should be maximum 2mb');
+
+			if (file.type !== 'image/jpeg' && file.type !== 'image/png')
+				return setError('Please upload a .jpeg or .jpg or .png  file');
+
+			setFileName(file.name);
+
+			toBase64(file)
+				.then(res => {
+					setNewFile(res);
+				})
+				.catch(error => {
+					setError(error.message);
+				});
+		} catch (error) {
+			setError(error.message);
+		}
+	}
+
+	async function onUploadFile() {
+		try {
+			setError('');
+			setIsDisabled(true);
+			const storageRef = ref(
+				firebaseStorage,
+				`admin-admission-docs/${fileName}`
+			);
+			const uploadTask = await uploadString(storageRef, newFile, 'data_url');
+			const fileURL = await getDownloadURL(uploadTask.ref);
+			const doc = await getDoc(database.addDoc(expID));
+			if (doc.exists()) {
+				updateDoc(database.addDoc(expID), {
+					files: [...doc.data().files, fileURL],
+				});
+				setDocs([...doc.data().files, fileURL]);
+			} else {
+				setDoc(database.addDoc(expID), {
+					files: [fileURL],
+				});
+				setDocs([fileURL]);
+			}
+			setFileName('');
+			setNewFile('');
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setIsDisabled(false);
 		}
 	}
 
@@ -151,28 +203,11 @@ export default function Admission() {
 		<>
 			<Prompt
 				header='Search Student Details'
-				body={
-					<StudentQuery
-						onClose={() => setModalOpen(false)}
-						setIsOpen={setIsOpen}
-						setPDFData={setPdfData}
-					/>
-				}
+				body={<StudentQuery onClose={() => setModalOpen(false)} />}
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
-			<Prompt
-				header='Add Student Subject'
-				body={
-					<StudentUpdate
-						setError={setError}
-						setSuccess={setSuccess}
-						onClose={() => setUpdateModal(false)}
-					/>
-				}
-				isOpen={updateModal}
-				onClose={() => setUpdateModal(false)}
-			/>
+
 			<Loading isOpen={isSubmitting} />
 			<Centered>
 				<Card>
@@ -195,15 +230,36 @@ export default function Admission() {
 							</Alert>
 						)}
 						<Form noValidate onSubmit={handleSubmit(onSubmit)}>
+							<Form.Group id='cn' className='mb-2'>
+								<FloatingLabel label='Contact No *'>
+									<Form.Control
+										isInvalid={errors?.tel}
+										isValid={dirtyFields?.tel && !errors?.tel}
+										disabled={isSubmitting}
+										readOnly={isSubmitting}
+										type='tel'
+										placeholder='a'
+										{...register('tel', {
+											required: 'Contact number is required',
+											validate: value =>
+												value.length === 10 ||
+												'Mobile number should have 10 digits',
+										})}
+									/>
+								</FloatingLabel>
+								<Form.Text className='text-danger'>
+									{errors?.tel?.message}
+								</Form.Text>
+							</Form.Group>
 							<Form.Group id='doa' className='mb-2'>
-								<FloatingLabel label='Date of Admission *'>
+								<FloatingLabel label='Date of Joining *'>
 									<Form.Control
 										isInvalid={errors?.doa}
 										isValid={dirtyFields?.doa && !errors?.doa}
 										disabled={isSubmitting}
 										readOnly={isSubmitting}
 										{...register('doa', {
-											required: 'Date of admission is required',
+											required: 'Date of joining is required',
 										})}
 										type='date'
 										placeholder='d'
@@ -294,14 +350,14 @@ export default function Admission() {
 								</Form.Text>
 							</Form.Group>
 							<Form.Group id='sub' className='mb-2'>
-								<FloatingLabel label='Subject *'>
+								<FloatingLabel label='Role *'>
 									<Form.Select
 										isInvalid={errors.sub}
 										isValid={!errors.sub}
 										disabled={isSubmitting}
 										readOnly={isSubmitting}
 										{...register('sub', {
-											required: 'Game subject is required',
+											required: 'Member role is required',
 										})}
 									>
 										{fields
@@ -337,27 +393,7 @@ export default function Admission() {
 									{errors?.ed?.message}
 								</Form.Text>
 							</Form.Group>
-							<Form.Group id='cn' className='mb-2'>
-								<FloatingLabel label='Contact No *'>
-									<Form.Control
-										isInvalid={errors?.tel}
-										isValid={dirtyFields?.tel && !errors?.tel}
-										disabled={isSubmitting}
-										readOnly={isSubmitting}
-										type='tel'
-										placeholder='a'
-										{...register('tel', {
-											required: 'Contact number is required',
-											validate: value =>
-												value.length === 10 ||
-												'Mobile number should have 10 digits',
-										})}
-									/>
-								</FloatingLabel>
-								<Form.Text className='text-danger'>
-									{errors?.tel?.message}
-								</Form.Text>
-							</Form.Group>
+
 							<Form.Group id='moth' className='mb-2'>
 								<FloatingLabel label="Mother's Name *">
 									<Form.Control
@@ -457,18 +493,47 @@ export default function Admission() {
 								</Form.Text>
 							</Form.Group>
 							<Form.Group id='dis' className='mb-2'>
-								<FloatingLabel label='Dissease (If any)'>
+								<FloatingLabel label='Aadhar Card*'>
 									<Form.Control
-										isInvalid={errors?.dis}
-										isValid={dirtyFields?.dis && !errors?.dis}
+										type='tel'
+										isInvalid={errors?.aadhar}
+										isValid={dirtyFields?.aadhar && !errors?.aadhar}
 										disabled={isSubmitting}
 										readOnly={isSubmitting}
 										placeholder='a'
-										{...register('dis')}
+										{...register('aadhar', {
+											required: 'Aadhar card is required',
+											pattern: {
+												value: /^[2-9]{1}[0-9]{3}\s{1}[0-9]{4}\s{1}[0-9]{4}$/,
+												message: 'Enter Valid Aadhar Card Number',
+											},
+										})}
 									/>
 								</FloatingLabel>
 								<Form.Text className='text-danger'>
-									{errors?.dis?.message}
+									{errors?.aadhar?.message}
+								</Form.Text>
+							</Form.Group>
+							<Form.Group id='dis' className='mb-2'>
+								<FloatingLabel label='Pan Card*'>
+									<Form.Control
+										type='tel'
+										isInvalid={errors?.pan}
+										isValid={dirtyFields?.pan && !errors?.pan}
+										disabled={isSubmitting}
+										readOnly={isSubmitting}
+										placeholder='a'
+										{...register('pan', {
+											required: 'Pan card is required',
+											pattern: {
+												value: /[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+												message: 'Enter Valid Pan Card Number',
+											},
+										})}
+									/>
+								</FloatingLabel>
+								<Form.Text className='text-danger'>
+									{errors?.pan?.message}
 								</Form.Text>
 							</Form.Group>
 							<Button
@@ -483,56 +548,87 @@ export default function Admission() {
 							<Button
 								onClick={() => setModalOpen(true)}
 								variant='info'
-								className='w-50 mt-2 me-2'
+								className='w-100 mt-2 me-2'
 							>
 								Query
-							</Button>
-							<Button
-								onClick={() => setUpdateModal(true)}
-								variant='secondary'
-								className='w-50 mt-2 ms-2'
-							>
-								Add Subject
 							</Button>
 						</div>
 					</Card.Body>
 				</Card>
 			</Centered>
-			<Offcanvas show={isOpen} onHide={() => setIsOpen(false)} backdrop={false}>
+			<Offcanvas
+				show={isOpen}
+				backdrop={false}
+				onHide={() => {
+					setIsOpen(false);
+					setFileName('');
+					setNewFile('');
+				}}
+			>
 				<Offcanvas.Header closeButton closeLabel='Close'>
-					<Offcanvas.Title>PDF Options</Offcanvas.Title>
+					<Offcanvas.Title>Supporting Docs</Offcanvas.Title>
 				</Offcanvas.Header>
 				<Offcanvas.Body>
-					<PDFViewer
-						showToolbar={false}
-						id='student-pdf-viewer'
-						name='student-pdf-viewer'
-						height='56.5%'
-						width='100%'
-					>
-						<RegPDF data={pdfData} />
-					</PDFViewer>
-					<PDFDownloadLink
-						className='d-flex flex-row justify-content-between text-decoration-none'
-						document={<RegPDF data={pdfData} />}
-					>
-						{({ blob, url, loading, error }) => {
-							return (
+					{docs.map(doc => (
+						<div className='d-flex flex-column' key={doc}>
+							<iframe
+								className='justify-content-center'
+								src={doc}
+								title={doc}
+							/>
+							<div className='d-flex flex-row'>
 								<Button
-									disabled={loading || error}
-									variant={error ? 'danger' : 'outline-primary'}
-									className='w-100'
-									onClick={e => {
-										e.preventDefault();
-										window.frames['student-pdf-viewer'].focus();
-										window.frames['student-pdf-viewer'].print();
-									}}
+									variant='outline-primary'
+									className='w-50 me-2'
+									onClick={() => window.open(doc)}
 								>
-									{error ? 'There was an error :-' + error.message : 'Print'}
+									<MdOpenInNew /> Open in a new tab
 								</Button>
-							);
-						}}
-					</PDFDownloadLink>
+								<Button
+									variant='outline-danger'
+									onClick={() => {}}
+									className='w-50 ms-2'
+								>
+									<MdDelete />
+									Delete Doc
+								</Button>
+							</div>
+						</div>
+					))}
+
+					{newFile && (
+						<>
+							<Form.Label className='mt-2'>New File</Form.Label>
+							<iframe
+								width='100%'
+								className='mb-2'
+								src={newFile}
+								title='newFile'
+								style={{
+									display: newFile ? 'block' : 'none',
+								}}
+							/>
+						</>
+					)}
+
+					<Form.Label className='mt-2'>Add New Document</Form.Label>
+					<Form.Control
+						className='mb-2'
+						type='file'
+						accept='image/*'
+						multiple={false}
+						onChange={handleFileChange}
+					/>
+					{newFile && (
+						<Button
+							disabled={isDisabled}
+							variant='outline-primary'
+							className='w-100'
+							onClick={onUploadFile}
+						>
+							Upload
+						</Button>
+					)}
 				</Offcanvas.Body>
 			</Offcanvas>
 		</>

@@ -9,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 import { getDoc } from 'firebase/firestore/lite';
 import { database } from '../../firebase';
 import paymentBill from '../../templates/payment';
+import { useAuthProvider } from '../../contexts/Auth';
 
 export default function ExpenditureQuery({
 	onClose,
@@ -17,6 +18,7 @@ export default function ExpenditureQuery({
 	setDocs,
 	setExpID,
 }) {
+	const { user } = useAuthProvider();
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
 	const [data, setData] = useState([]);
@@ -49,14 +51,19 @@ export default function ExpenditureQuery({
 		let newData;
 		if (name && ph) {
 			newData = data.filter(
-				d => d.NAME.includes(name) && d.MOBILE_NUMBER.includes(ph)
+				d =>
+					d.NAME.includes(name) &&
+					d.MOBILE_NUMBER.includes(ph) &&
+					d.ISSUED_BY === user
 			);
 		}
 		if (!name && ph) {
-			newData = data.filter(d => d.MOBILE_NUMBER.includes(ph));
+			newData = data.filter(
+				d => d.MOBILE_NUMBER.includes(ph) && d.ISSUED_BY === user
+			);
 		}
 		if (name && !ph) {
-			newData = data.filter(d => d.NAME.includes(name));
+			newData = data.filter(d => d.NAME.includes(name) && d.ISSUED_BY === user);
 		}
 		setFilteredData(newData);
 		setShowTable(true);
