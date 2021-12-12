@@ -697,6 +697,7 @@ export default function Expenditure() {
 						setError={setError}
 						setIsDisabled={setIsDisabled}
 						isDisabled={isDisabled}
+						isMember={false}
 					/>
 				}
 				isOpen={deleteDocModal}

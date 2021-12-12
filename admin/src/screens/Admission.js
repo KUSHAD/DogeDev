@@ -16,6 +16,7 @@ import StudentQuery from './Query/StudentQuery';
 import { useFetchMaster } from '../contexts/FetchMaster';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { toBase64 } from '../toBase64';
+import DeleteDocModal from './Query/DeleteDocModal';
 
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 
@@ -52,6 +53,8 @@ export default function Admission() {
 			pan: '',
 		},
 	});
+	const [deleteDocModal, setDeleteDocModal] = useState(false);
+	const [deleteDoc, setDeleteDoc] = useState('');
 	const [isOpen, setIsOpen] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
 	const { user } = useAuthProvider();
@@ -202,8 +205,16 @@ export default function Admission() {
 	return (
 		<>
 			<Prompt
-				header='Search Student Details'
-				body={<StudentQuery onClose={() => setModalOpen(false)} />}
+				header='Search Members'
+				body={
+					<StudentQuery
+						setDocsModal={setIsOpen}
+						setExpID={setExpID}
+						setDocs={setDocs}
+						setError={setError}
+						onClose={() => setModalOpen(false)}
+					/>
+				}
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
@@ -586,7 +597,10 @@ export default function Admission() {
 								</Button>
 								<Button
 									variant='outline-danger'
-									onClick={() => {}}
+									onClick={() => {
+										setDeleteDoc(doc);
+										setDeleteDocModal(true);
+									}}
 									className='w-50 ms-2'
 								>
 									<MdDelete />
@@ -631,6 +645,30 @@ export default function Admission() {
 					)}
 				</Offcanvas.Body>
 			</Offcanvas>
+			<Prompt
+				header='Delete Doc'
+				body={
+					<DeleteDocModal
+						expID={expID}
+						docs={docs}
+						deleteDoc={deleteDoc}
+						onClose={() => {
+							setDeleteDoc('');
+							setDeleteDocModal(false);
+						}}
+						setDocs={setDocs}
+						setError={setError}
+						setIsDisabled={setIsDisabled}
+						isDisabled={isDisabled}
+						isMember={true}
+					/>
+				}
+				isOpen={deleteDocModal}
+				onClose={() => {
+					setDeleteDoc('');
+					setDeleteDocModal(false);
+				}}
+			/>
 		</>
 	);
 }

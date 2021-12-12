@@ -11,14 +11,21 @@ export default function DeleteDocModal({
 	setError,
 	setIsDisabled,
 	isDisabled,
+	isMember,
 }) {
 	async function deleteDocFromDB() {
 		try {
 			setIsDisabled(true);
 			const filteredDocs = docs.filter(doc => doc !== deleteDoc);
-			await updateDoc(database.docs(expID), {
-				files: filteredDocs,
-			});
+			if (isMember) {
+				await updateDoc(database.addDoc(expID), {
+					files: filteredDocs,
+				});
+			} else {
+				await updateDoc(database.docs(expID), {
+					files: filteredDocs,
+				});
+			}
 
 			const storageRef = ref(firebaseStorage, deleteDoc);
 

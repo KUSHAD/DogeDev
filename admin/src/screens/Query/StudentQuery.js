@@ -6,8 +6,16 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Button from 'react-bootstrap/Button';
+import { getDoc } from 'firebase/firestore/lite';
+import { database } from '../../firebase';
 
-export default function StudentQuery({ onClose }) {
+export default function StudentQuery({
+	onClose,
+	setDocsModal,
+	setDocs,
+	setExpID,
+	setError,
+}) {
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
 	const [data, setData] = useState([]);
@@ -51,6 +59,23 @@ export default function StudentQuery({ onClose }) {
 		setName('');
 		setPh('');
 		setShowTable(false);
+	}
+
+	async function showDocsModal(_id) {
+		try {
+			const doc = await getDoc(database.addDoc(_id));
+			if (doc.exists()) {
+				setDocs(doc.data().files);
+			} else {
+				setDocs([]);
+			}
+			setExpID(_id);
+			setDocsModal(true);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			onClose();
+		}
 	}
 
 	return (
@@ -100,6 +125,7 @@ export default function StudentQuery({ onClose }) {
 							<th>DOB</th>
 							<th>Father's Name</th>
 							<th>Mother's Name</th>
+							<th>Add Supporting Docs</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -111,6 +137,11 @@ export default function StudentQuery({ onClose }) {
 								<td>{d.DOB}</td>
 								<td>{d.FATHER}</td>
 								<td>{d.MOTHER}</td>
+								<td>
+									<Button className='w-100' onClick={() => showDocsModal(d.SR)}>
+										Docs
+									</Button>
+								</td>
 							</tr>
 						))}
 					</tbody>
