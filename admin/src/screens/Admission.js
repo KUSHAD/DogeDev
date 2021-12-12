@@ -32,6 +32,7 @@ export default function Admission() {
 		register,
 		reset,
 		handleSubmit,
+		setValue,
 		formState: { errors, dirtyFields, isSubmitting },
 	} = useForm({
 		mode: 'all',
@@ -65,6 +66,8 @@ export default function Admission() {
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [newFile, setNewFile] = useState('');
 	const [expID, setExpID] = useState('');
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [updatingRow, setUpdatingRow] = useState('');
 
 	async function addDataToSheet(data) {
 		const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
@@ -122,6 +125,7 @@ export default function Admission() {
 			AADHAR_CARD: data.aadhar,
 			PAN_CARD: data.pan,
 			ISSUED_BY: user,
+			GENDER: data.sex,
 		};
 		await sheet.addRow(row);
 		setStudentsAdd([row, ...studentsAdd]);
@@ -202,24 +206,65 @@ export default function Admission() {
 		}
 	}
 
+	async function updateUser(data) {
+		try {
+			const d = new Date(data.dob);
+			const dateString =
+				d.getMonth() + 1 + '/' + d.getDate() + '/' + d.getFullYear();
+			const doa = new Date(data.doa);
+			const doaDateString =
+				doa.getMonth() + 1 + '/' + doa.getDate() + '/' + doa.getFullYear();
+			const doc = new GoogleSpreadsheet(constants.SPREADSHEET.ID);
+			await doc.useServiceAccountAuth(clientCreds);
+			await doc.loadInfo();
+			const sheet = doc.sheetsByIndex[2];
+			const rows = await sheet.getRows({ offset: 0 });
+			let row = rows.find(_row => _row.a1Range === updatingRow);
+			row.NAME = data.name.toUpperCase();
+			row.DATE_OF_ADMISSION = doaDateString;
+			row.BLOOD_GROUP = data.blood.toUpperCase();
+			row.DOB = dateString;
+			row.SUBJECT = data.sub.toUpperCase();
+			row.EDUCATION = data.ed.toUpperCase();
+			row.CONTAC = data.tel.toUpperCase();
+			row.MOTHER = data.mother.toUpperCase();
+			row.FATHER = data.father.toUpperCase();
+			row.ADDRESS = data.address.toUpperCase();
+			row.EMAIL = data.email.toUpperCase();
+			row.WHATSAPP = data.wa;
+			row.AADHAR_CARD = data.aadhar;
+			row.PAN_CARD = data.pan;
+			row.GENDER = data.sex;
+			await row.save();
+			reset();
+			setUpdatingRow('');
+			setIsUpdating(false);
+		} catch (_error) {
+			setError(_error.message);
+		}
+	}
+
 	return (
 		<>
 			<Prompt
 				header='Search Members'
 				body={
 					<StudentQuery
+						setIsUpdating={setIsUpdating}
+						setFormValue={setValue}
 						setDocsModal={setIsOpen}
 						setExpID={setExpID}
 						setDocs={setDocs}
 						setError={setError}
 						onClose={() => setModalOpen(false)}
+						setUpdatingRow={setUpdatingRow}
 					/>
 				}
 				isOpen={modalOpen}
 				onClose={() => setModalOpen(false)}
 			/>
 
-			<Loading isOpen={isSubmitting} />
+			<Loading isOpen={isSubmitting || isDisabled} />
 			<Centered>
 				<Card>
 					<Card.Body>
@@ -240,7 +285,12 @@ export default function Admission() {
 								<p>{success}</p>
 							</Alert>
 						)}
-						<Form noValidate onSubmit={handleSubmit(onSubmit)}>
+						<Form
+							noValidate
+							onSubmit={
+								isUpdating ? handleSubmit(updateUser) : handleSubmit(onSubmit)
+							}
+						>
 							<Form.Group id='cn' className='mb-2'>
 								<FloatingLabel label='Contact No *'>
 									<Form.Control
@@ -564,6 +614,18 @@ export default function Admission() {
 								Query
 							</Button>
 						</div>
+						{isUpdating && (
+							<Button
+								variant='outline-danger'
+								onClick={() => {
+									reset();
+									setIsUpdating(false);
+								}}
+								className='w-100 mt-2'
+							>
+								Clear
+							</Button>
+						)}
 					</Card.Body>
 				</Card>
 			</Centered>

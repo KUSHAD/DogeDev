@@ -15,6 +15,9 @@ export default function StudentQuery({
 	setDocs,
 	setExpID,
 	setError,
+	setFormValue,
+	setIsUpdating,
+	setUpdatingRow,
 }) {
 	const [name, setName] = useState('');
 	const [ph, setPh] = useState('');
@@ -78,6 +81,81 @@ export default function StudentQuery({
 		}
 	}
 
+	async function onUpdateClick(_doc) {
+		try {
+			await setFormValue(
+				'doa',
+				new Date(_doc.DATE_OF_ADMISSION).toISOString().substr(0, 10),
+				{
+					shouldValidate: true,
+				}
+			);
+			await setFormValue('name', _doc.NAME, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('sex', _doc.GENDER, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('blood', _doc.BLOOD_GROUP, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue(
+				'dob',
+				new Date(_doc.DOB).toISOString().substr(0, 10),
+				{ shouldValidate: true, shouldDirty: true }
+			);
+			await setFormValue('sub', _doc.SUBJECT, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('ed', _doc.EDUCATION, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('tel', _doc.CONTACT, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('mother', _doc.MOTHER, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('father', _doc.FATHER, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('address', _doc.ADDRESS, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('email', _doc.EMAIL, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('wa', _doc.WHATSAPP, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('aadhar', _doc.AADHAR_CARD, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			await setFormValue('pan', _doc.PAN_CARD, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+			setUpdatingRow(_doc.a1Range);
+			setIsUpdating(true);
+		} catch (error) {
+			setError(error.message);
+		} finally {
+			onClose();
+		}
+	}
+
 	return (
 		<>
 			<Form.Group id='name' className='mb-2'>
@@ -125,6 +203,7 @@ export default function StudentQuery({
 							<th>DOB</th>
 							<th>Father's Name</th>
 							<th>Mother's Name</th>
+							<th>Update Details</th>
 							<th>Add Supporting Docs</th>
 						</tr>
 					</thead>
@@ -137,6 +216,11 @@ export default function StudentQuery({
 								<td>{d.DOB}</td>
 								<td>{d.FATHER}</td>
 								<td>{d.MOTHER}</td>
+								<td>
+									<Button className='w-100' onClick={() => onUpdateClick(d)}>
+										Update Member
+									</Button>
+								</td>
 								<td>
 									<Button className='w-100' onClick={() => showDocsModal(d.SR)}>
 										Docs
