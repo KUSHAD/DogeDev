@@ -82,6 +82,7 @@ const constants = {
 	EXP_STATS: {
 		APP: 'APPROVED',
 		PEN: 'PENDING',
+		DEL: 'DELETED',
 	},
 };
 

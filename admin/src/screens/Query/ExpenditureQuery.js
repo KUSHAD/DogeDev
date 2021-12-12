@@ -59,11 +59,19 @@ export default function ExpenditureQuery({
 		}
 		if (!name && ph) {
 			newData = data.filter(
-				d => d.MOBILE_NUMBER.includes(ph) && d.ISSUED_BY === user
+				d =>
+					d.MOBILE_NUMBER.includes(ph) &&
+					d.ISSUED_BY === user &&
+					d.STATUS !== constants.EXP_STATS.DEL
 			);
 		}
 		if (name && !ph) {
-			newData = data.filter(d => d.NAME.includes(name) && d.ISSUED_BY === user);
+			newData = data.filter(
+				d =>
+					d.NAME.includes(name) &&
+					d.ISSUED_BY === user &&
+					d.STATUS !== constants.EXP_STATS.DEL
+			);
 		}
 		setFilteredData(newData);
 		setShowTable(true);
@@ -107,6 +115,18 @@ export default function ExpenditureQuery({
 		} catch (error) {
 			setError(error.message);
 		} finally {
+			onClose();
+		}
+	}
+
+	async function deleteEntry(_doc) {
+		try {
+			_doc.STATUS = constants.EXP_STATS.DEL;
+			await _doc.save();
+			setData(data.filter(_row => _row.SR_NO !== _doc.SR_NO));
+			setFilteredData(data.filter(_row => _row.SR_NO !== _doc.SR_NO));
+		} catch (error) {
+			setError(error.message);
 			onClose();
 		}
 	}
@@ -160,6 +180,7 @@ export default function ExpenditureQuery({
 							<th>Status</th>
 							<th>Action</th>
 							<th>Add Supporting Docs</th>
+							<th>Delete</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -183,6 +204,11 @@ export default function ExpenditureQuery({
 										onClick={() => showDocsModal(d.SR_NO)}
 									>
 										Docs
+									</Button>
+								</td>
+								<td>
+									<Button className='w-100' onClick={() => deleteEntry(d)}>
+										Delete Entry
 									</Button>
 								</td>
 							</tr>
