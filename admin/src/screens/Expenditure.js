@@ -35,7 +35,7 @@ export default function Expenditure() {
 	} = useForm({
 		mode: 'all',
 		defaultValues: {
-			type: 'CONSTRUCTION MATERIAL',
+			type: 'VENUE BOOKING',
 			desc: '',
 			amt: '',
 			date: '',
@@ -56,7 +56,7 @@ export default function Expenditure() {
 	const [docsModal, setDocsModal] = useState(false);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [approveModal, setApproveModal] = useState(false);
-	const { user } = useAuthProvider();
+	const { user, userPerms } = useAuthProvider();
 	const [error, setError] = useState('');
 	const [success, setSuccess] = useState('');
 	const [newFile, setNewFile] = useState('');
@@ -593,13 +593,16 @@ export default function Expenditure() {
 									Query
 								</Button>
 							</div>
-							<Button
-								onClick={() => setApproveModal(true)}
-								variant='secondary'
-								className='mt-2 w-100'
-							>
-								Approve Bills
-							</Button>
+							{userPerms === constants.USER_PERMS.TREASURER ||
+							userPerms === constants.USER_PERMS.TEST ? (
+								<Button
+									onClick={() => setApproveModal(true)}
+									variant='secondary'
+									className='mt-2 w-100'
+								>
+									Approve Bills
+								</Button>
+							) : null}
 						</Form>
 					</Card.Body>
 				</Card>

@@ -12,6 +12,7 @@ import Loading from '../components/Loading';
 import { useAuthProvider } from '../contexts/Auth';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { firebaseAuth } from '../firebase';
+import { useFetchMaster } from '../contexts/FetchMaster';
 
 export default function Auth() {
 	const {
@@ -26,7 +27,8 @@ export default function Auth() {
 			otp: '',
 		},
 	});
-	const { setUser } = useAuthProvider();
+	const { setUser, setUserPerms } = useAuthProvider();
+	const { studentsAdd } = useFetchMaster();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showCodeInput, setShowCodeInput] = useState(false);
 	const [error, setError] = useState('');
@@ -65,8 +67,9 @@ export default function Auth() {
 		setIsSubmitting(true);
 		window.confirmationResult
 			.confirm(data.otp)
-			.then(() => {
+			.then(async () => {
 				setUser(data.ph);
+				await settingUserPerms(data.ph);
 				setSuccess('OTP Verified');
 				setShowCodeInput(false);
 				history.push('/');
@@ -79,6 +82,36 @@ export default function Auth() {
 			})
 			.finally(() => setIsSubmitting(false));
 	}
+
+	async function settingUserPerms(_phoneNumber) {
+		const findNums = await constants.VALID_PHONES.filter(
+			ph => ph === _phoneNumber
+		);
+
+		const findDBNums = await studentsAdd.filter(
+			user => user.CONTACT === _phoneNumber
+		);
+
+		if (findDBNums.length === 0 && findNums.length !== 0) {
+			setUserPerms(constants.USER_PERMS.TEST);
+		}
+
+		if (findDBNums.length !== 0 && findNums.length === 0) {
+			const findTheUser = await findDBNums.find(
+				_user => _user.CONTACT === _phoneNumber
+			);
+			if (
+				findTheUser.SUBJECT === constants.USER_TYPES.PRESIDENT ||
+				findTheUser.SUBJECT === constants.USER_TYPES.SECRETARY
+			) {
+				setUserPerms(constants.USER_PERMS.EXECUTIVE);
+			}
+			if (findTheUser.SUBJECT === constants.USER_TYPES.TREASURER) {
+				setUserPerms(constants.USER_PERMS.TREASURER);
+			}
+		}
+	}
+
 	useEffect(() => {
 		return () => {
 			reset();
@@ -136,7 +169,18 @@ export default function Auth() {
 												const findNums = await constants.VALID_PHONES.filter(
 													ph => ph === value
 												);
-												if (value.length === 10 && findNums.length === 0)
+
+												const findDBNums = await studentsAdd.filter(
+													user =>
+														user.CONTACT === value &&
+														user.SUBJECT !== constants.USER_TYPES.DISCONTINUED
+												);
+
+												if (
+													value.length === 10 &&
+													findNums.length === 0 &&
+													findDBNums.length === 0
+												)
 													return 'You are not authorised to use this feature';
 											},
 										})}

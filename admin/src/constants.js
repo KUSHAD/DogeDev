@@ -23,14 +23,14 @@ const constants = {
 	SEX: ['MALE', 'FEMALE', 'OTHER'],
 	BLOOD_GROUP: [
 		'NOT KNOWN',
-		'A+ve',
-		'A-ve',
-		'B+ve',
-		'B-ve',
-		'AB+ve',
-		'AB-ve',
-		'O+ve',
-		'O-ve',
+		'A+VE',
+		'A-VE',
+		'B+VE',
+		'B-VE',
+		'AB+VE',
+		'AB-VE',
+		'O+VE',
+		'O-VE',
 	],
 	EMAIL_REGEX:
 		/^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i,
@@ -83,6 +83,19 @@ const constants = {
 		APP: 'APPROVED',
 		PEN: 'PENDING',
 		DEL: 'DELETED',
+	},
+	USER_PERMS: {
+		EXECUTIVE: 'executive',
+		TREASURER: 'treasurer',
+		MEMBER: 'member',
+		TEST: 'test',
+	},
+	USER_TYPES: {
+		PRESIDENT: 'PRESIDENT',
+		SECRETARY: 'SECRETARY',
+		TREASURER: 'TREASURER',
+		MEMBER: 'MEMBER',
+		DISCONTINUED: 'DISCONTINUED',
 	},
 };
 
