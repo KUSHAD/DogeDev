@@ -109,6 +109,9 @@ export default function Auth() {
 			if (findTheUser.SUBJECT === constants.USER_TYPES.TREASURER) {
 				setUserPerms(constants.USER_PERMS.TREASURER);
 			}
+			if (findTheUser.SUBJECT === constants.USER_TYPES.MEMBER) {
+				setUserPerms(constants.USER_PERMS.MEMBER);
+			}
 		}
 	}
 
