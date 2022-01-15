@@ -14,7 +14,17 @@ export default function FavSubjects({ navigation }) {
 				keyExtractor={item => item}
 				data={environment.subjects}
 				renderItem={({ item }) => (
-					<ListItem key={item}>
+					<ListItem
+						key={item}
+						onPress={() => {
+							if (subs.includes(item)) {
+								const newSubs = subs.filter(_sub => _sub !== item);
+								setSubs(newSubs);
+							} else {
+								setSubs(_prevSubs => [..._prevSubs, item]);
+							}
+						}}
+					>
 						<ListItem.Title>{item}</ListItem.Title>
 						<ListItem.CheckBox
 							onPress={() => {

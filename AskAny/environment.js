@@ -28,4 +28,9 @@ export const environment = {
 		'German',
 		'Other Subjects',
 	],
+	cloudinary: {
+		cloud_name: `kushad`,
+		url: `https://api.cloudinary.com/v1_1/kushad/image/upload`,
+		preset: `askanyDogeDev`,
+	},
 };

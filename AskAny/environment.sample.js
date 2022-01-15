@@ -28,4 +28,9 @@ export const environment = {
 		'German',
 		'Other Subjects',
 	],
+	cloudinary: {
+		cloud_name: `cloud_name`,
+		url: `https://api.cloudinary.com/v1_1/cloud_name/image/upload`,
+		preset: `upload_preset`,
+	},
 };
