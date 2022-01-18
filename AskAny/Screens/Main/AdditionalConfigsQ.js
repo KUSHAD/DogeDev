@@ -11,35 +11,60 @@ import {
 import Container from '../../Components/Container';
 import { environment } from '../../environment';
 import { useAttachments } from '../../hooks/useAttachments';
-import ImageModal from '../../Components/ImageModal';
-import { Camera } from 'expo-camera';
-import { useIsFocused } from '@react-navigation/native';
+import { useQuestions } from '../../hooks/useQuestions';
+import { useAuthProvider } from '../../Providers/AuthProvider';
 
-export default function AdditionalConfigsQ() {
+import ImageModal from '../../Components/ImageModal';
+import Toast from 'react-native-simple-toast';
+
+export default function AdditionalConfigsQ({ route, navigation }) {
 	const [subject, setSubject] = useState('');
 	const [subjectSheet, setSubjectSheet] = useState(false);
-	const [attSheet, setAttSheet] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [modal, setModal] = useState(false);
 	const {
 		attachmentSrc,
-		cameraRef,
-		captureCameraImage,
-		closeCamera,
-		openCamera,
 		pickImageFromGallery,
 		removeAttachment,
-		showCamera,
+		uploadAttachment,
 	} = useAttachments();
-	const isFocused = useIsFocused();
-	async function takePicture() {
-		await openCamera();
-		setAttSheet(false);
+
+	const { authUser } = useAuthProvider();
+
+	const { title, desc } = route.params;
+
+	const { addNewQuestion } = useQuestions();
+
+	async function newQuestion() {
+		try {
+			setIsLoading(true);
+			const imgUrl = await uploadAttachment();
+
+			await addNewQuestion({
+				title: title,
+				desc: desc,
+				attachment: imgUrl || '',
+				user: {
+					email: authUser.email,
+					name: authUser.name,
+					avatar: authUser.avatar,
+				},
+				subject: subject,
+			});
+			navigation.popToTop();
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
 	}
+
 	return (
 		<>
 			<Container>
 				<SafeAreaView style={{ width: `80%` }}>
 					<Button
+						loading={isLoading}
 						title='Select a subject'
 						raised
 						onPress={() => {
@@ -62,59 +87,43 @@ export default function AdditionalConfigsQ() {
 						))}
 					</BottomSheet>
 					<Button
-						title='Add Attachments'
+						loading={isLoading}
+						title={attachmentSrc ? 'Change Attachment' : 'Add Attachment'}
 						raised
-						onPress={() => setAttSheet(true)}
+						onPress={() => pickImageFromGallery()}
 					/>
-					<BottomSheet isVisible={attSheet}>
-						<ListItem onPress={takePicture}>
-							<ListItem.Title>Camera</ListItem.Title>
-						</ListItem>
-						<ListItem
-							onPress={() => {
-								setAttSheet(false);
-								pickImageFromGallery();
-							}}
-						>
-							<ListItem.Title>Filesystem</ListItem.Title>
-						</ListItem>
-						<Button
-							title='Close'
-							type='clear'
-							buttonStyle={{ backgroundColor: colors.white }}
-							titleStyle={{ color: colors.error }}
-							onPress={() => setAttSheet(false)}
-						/>
-					</BottomSheet>
-					{showCamera && isFocused ? (
-						<Camera
-							ref={cameraRef}
-							autoFocus='auto'
-							type='back'
-							style={{ flex: 1 }}
-							onCameraReady={() => console.log('Camera Reday')}
-						>
-							<SafeAreaView style={{ flex: 0.5 }}>
-								<Button title='Scan' />
-							</SafeAreaView>
-						</Camera>
-					) : (
-						Boolean(attachmentSrc) && (
+					{Boolean(attachmentSrc) && (
+						<>
 							<TouchableOpacity
 								style={{ marginTop: 10 }}
 								onPress={() => setModal(true)}
-								onLongPress={() => setAttSheet(true)}
+								onLongPress={() => pickImageFromGallery()}
 							>
 								<Image
 									source={{ uri: attachmentSrc }}
 									style={{ width: `100%`, aspectRatio: 1 / 1 }}
 								/>
 							</TouchableOpacity>
-						)
+							<Button
+								loading={isLoading}
+								onPress={removeAttachment}
+								type='outline'
+								buttonStyle={{ borderColor: colors.error }}
+								titleStyle={{ color: colors.error }}
+								title='Remove Attachment'
+								containerStyle={{ marginTop: 10 }}
+							/>
+						</>
 					)}
 				</SafeAreaView>
 			</Container>
-			{Boolean(subject) && <Button title='Add Question' />}
+			{Boolean(subject) && (
+				<Button
+					title='Add Question'
+					onPress={newQuestion}
+					loading={isLoading}
+				/>
+			)}
 			<ImageModal
 				imgUri={attachmentSrc}
 				isOpen={modal}

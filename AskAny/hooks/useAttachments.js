@@ -1,38 +1,11 @@
-import { Camera } from 'expo-camera';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
 import Toast from 'react-native-simple-toast';
+import { environment } from '../environment';
 
 export function useAttachments() {
-	const [showCamera, setShowCamera] = useState(false);
 	const [attachmentSrc, setAttachmentSrc] = useState('');
-
-	const cameraRef = useRef();
-
-	async function openCamera() {
-		try {
-			await Camera.getCameraPermissionsAsync();
-			setShowCamera(true);
-		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-		}
-	}
-
-	async function captureCameraImage() {
-		try {
-			if (cameraRef.current) {
-				const options = { quality: 1, skipProcessing: false, base64: false };
-				const data = await cameraRef.current.takePictureAsync(options);
-				if (data) {
-					setAttachmentSrc(data.uri);
-					setShowCamera(false);
-				}
-			}
-		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-		}
-	}
 
 	async function pickImageFromGallery() {
 		try {
@@ -41,9 +14,9 @@ export function useAttachments() {
 				aspect: [1, 1],
 				mediaTypes: ImagePicker.MediaTypeOptions.Images,
 				quality: 1,
-				base64: false,
+				base64: true,
 			});
-			setAttachmentSrc(data.uri);
+			setAttachmentSrc(`data:image/jpg;base64,${data.base64}`);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
 		}
@@ -53,18 +26,25 @@ export function useAttachments() {
 		setAttachmentSrc('');
 	}
 
-	function closeCamera() {
-		setShowCamera(false);
+	async function uploadAttachment() {
+		if (!attachmentSrc) return;
+		const formData = new FormData();
+		formData.append('file', attachmentSrc);
+		formData.append('upload_preset', environment.cloudinary.preset);
+		formData.append('cloud_name', environment.cloudinary.cloud_name);
+		const res = await fetch(environment.cloudinary.url, {
+			method: 'POST',
+			body: formData,
+		});
+		const data = await res.json();
+		const secureUrl = data.secure_url;
+		return secureUrl;
 	}
 
 	return {
-		openCamera,
-		captureCameraImage,
-		cameraRef,
 		attachmentSrc,
-		showCamera,
 		pickImageFromGallery,
 		removeAttachment,
-		closeCamera,
+		uploadAttachment,
 	};
 }

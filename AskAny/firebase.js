@@ -9,8 +9,11 @@ export const firebaseAuth = getAuth(app);
 export const firebaseFirestore = getFirestore(app);
 
 export const database = {
-  userID: id => {
-    const dbCollection = collection(firebaseFirestore, 'user');
-    return doc(dbCollection, id);
-  },
+	userID: id => {
+		const dbCollection = collection(firebaseFirestore, 'user');
+		return doc(dbCollection, id);
+	},
+	questionCol: () => {
+		return collection(firebaseFirestore, 'questions');
+	},
 };
