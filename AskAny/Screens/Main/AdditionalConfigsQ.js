@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { SafeAreaView, Image } from 'react-native';
 import {
@@ -58,6 +58,14 @@ export default function AdditionalConfigsQ({ route, navigation }) {
 			setIsLoading(false);
 		}
 	}
+
+	useEffect(() => {
+		return () => {
+			setIsLoading(false);
+			setSubject('');
+			removeAttachment();
+		};
+	}, []);
 
 	return (
 		<>
