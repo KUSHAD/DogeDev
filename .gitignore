@@ -73,4 +73,5 @@ client_creds.json
 
 
 #expo
-.expo
+.expo/
+.expo-shared/
