@@ -5,8 +5,8 @@ import { FlatList } from 'react-native';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
 import { useAuthProvider } from '../Providers/AuthProvider';
 export default function FavSubjects({ navigation }) {
-	const [subs, setSubs] = useState([]);
-	const { isLoading, setFavSubjects } = useAuthProvider();
+	const { isLoading, setFavSubjects, authUser } = useAuthProvider();
+	const [subs, setSubs] = useState(authUser.favSubs);
 
 	return (
 		<>

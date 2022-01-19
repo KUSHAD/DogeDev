@@ -45,9 +45,10 @@ export default function AdditionalConfigsQ({ route, navigation }) {
 				desc: desc,
 				attachment: imgUrl || '',
 				user: {
-					email: authUser.email,
+					uid: authUser.uid,
 					name: authUser.name,
 					avatar: authUser.avatar,
+					pushToken: authUser.pushToken,
 				},
 				subject: subject,
 			});

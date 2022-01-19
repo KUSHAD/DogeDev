@@ -8,10 +8,13 @@ import {
 } from 'firebase/auth';
 import { setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firebaseAuth, database } from '../firebase';
+import { useNotifications } from '../hooks/useNotifications';
+import { environment } from '../environment';
 
 const Auth = createContext();
 
 export function AuthProvider({ children }) {
+	const { registerForPushNotificationsAsync } = useNotifications();
 	const [isLoading, setIsLoading] = useState(false);
 	const [authUser, setAuthUser] = useState({
 		email: '',
@@ -19,6 +22,7 @@ export function AuthProvider({ children }) {
 		avatar: '',
 		uid: '',
 		favSubs: [],
+		pushToken: '',
 	});
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -33,6 +37,7 @@ export function AuthProvider({ children }) {
 				email: email,
 				uid: user.user.uid,
 				favSubs: dataInDB.data().favSubs,
+				pushToken: dataInDB.data().pushToken,
 			});
 			setIsLoggedIn(true);
 		} catch (error) {
@@ -50,19 +55,22 @@ export function AuthProvider({ children }) {
 				email,
 				pass
 			);
+			const pushToken = await registerForPushNotificationsAsync();
 			await setDoc(database.userID(user.user.uid), {
 				email,
 				name,
 				avatar: `https://avatars.dicebear.com/api/jdenticon/${user.user.uid}.svg`,
+				pushToken: pushToken,
+				favSubs: environment.subjects,
 			});
 			setAuthUser({
 				email,
 				name,
 				avatar: `https://avatars.dicebear.com/api/jdenticon/${user.user.uid}.svg`,
 				uid: user.user.uid,
-				favSubs: [],
+				favSubs: environment.subjects,
+				pushToken: pushToken,
 			});
-			navigation.navigate('FavSubjects');
 			setIsLoggedIn(true);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
@@ -71,21 +79,27 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	async function getUserLoginStatus() {
+	function getUserLoginStatus() {
 		setIsLoading(true);
 		onAuthStateChanged(
 			firebaseAuth,
 			async user => {
-				const dataInDB = await getDoc(database.userID(user.uid));
-				setAuthUser({
-					name: dataInDB.data().name,
-					avatar: dataInDB.data().avatar,
-					email: user.email,
-					uid: user.uid,
-					favSubs: dataInDB.data().favSubs,
-				});
-				setIsLoggedIn(true);
-				setIsLoading(false);
+				if (user) {
+					const dataInDB = await getDoc(database.userID(user.uid));
+					setAuthUser({
+						name: dataInDB.data().name,
+						avatar: dataInDB.data().avatar,
+						email: user.email,
+						uid: user.uid,
+						favSubs: dataInDB.data().favSubs,
+						pushToken: dataInDB.data().pushToken,
+					});
+					setIsLoggedIn(true);
+					setIsLoading(false);
+				} else {
+					setIsLoggedIn(false);
+					setIsLoading(false);
+				}
 			},
 			error => {
 				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);

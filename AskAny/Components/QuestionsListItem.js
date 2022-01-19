@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 import { colors, ListItem, Text, Avatar } from 'react-native-elements';
 
 export default function QuestionsListItem({ question }) {
@@ -7,9 +7,10 @@ export default function QuestionsListItem({ question }) {
 			<ListItem.Content>
 				<View style={{ flexDirection: 'row' }}>
 					<Avatar source={{ uri: question.user.avatar }} size='small' />
-					<ListItem.Title style={{ marginTop: 10 }}>
-						{question.user.name}
-					</ListItem.Title>
+					<SafeAreaView style={{ flexDirection: 'column' }}>
+						<ListItem.Title>{question.user.name}</ListItem.Title>
+						<ListItem.Subtitle>Subject :- {question.subject}</ListItem.Subtitle>
+					</SafeAreaView>
 				</View>
 				<Text h3>
 					{question.title.length < 30

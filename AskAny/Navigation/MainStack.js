@@ -28,7 +28,6 @@ export default function MainStack() {
 				name='FavSubjects'
 				component={FavSubjects}
 				options={{
-					headerBackVisible: false,
 					title: `Subjects Selections`,
 					headerStyle: {
 						backgroundColor: colors.primary,
