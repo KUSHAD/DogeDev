@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native';
-import { Text, Input, Button } from 'react-native-elements';
+import { Input, Button } from 'react-native-elements';
 import Container from '../../Components/Container';
 import { Controller, useForm } from 'react-hook-form';
 export default function NewQuestion({ navigation }) {
@@ -21,7 +21,13 @@ export default function NewQuestion({ navigation }) {
 				}}
 			>
 				<Controller
-					rules={{ required: 'Question title is required' }}
+					rules={{
+						required: 'Question title is required',
+						maxLength: {
+							value: 100,
+							message: 'Question title shoulbe be maximum 100 characters',
+						},
+					}}
 					control={control}
 					name='title'
 					render={({
@@ -38,7 +44,13 @@ export default function NewQuestion({ navigation }) {
 					)}
 				/>
 				<Controller
-					rules={{ required: 'Question Description is required' }}
+					rules={{
+						required: 'Question Description is required',
+						maxLength: {
+							value: 500,
+							message: 'Description should be maximum 500 characters',
+						},
+					}}
 					control={control}
 					name='desc'
 					render={({

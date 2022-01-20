@@ -2,9 +2,9 @@ import {
 	addDoc,
 	onSnapshot,
 	query,
-	where,
 	orderBy,
 	serverTimestamp,
+	getDoc,
 } from 'firebase/firestore';
 import { useState } from 'react';
 import Toast from 'react-native-simple-toast';
@@ -13,6 +13,17 @@ import { useAuthProvider } from '../Providers/AuthProvider';
 
 export function useQuestions() {
 	const [questions, setQuestions] = useState([]);
+	const [currentQuestion, setQuestion] = useState({
+		title: '',
+		desc: '',
+		attachment: '',
+		user: {
+			name: '',
+			uid: '',
+			avatar: '',
+		},
+		subject: '',
+	});
 	const { authUser } = useAuthProvider();
 	async function addNewQuestion({ title, desc, user, attachment, subject }) {
 		try {
@@ -48,5 +59,30 @@ export function useQuestions() {
 		);
 	}
 
-	return { addNewQuestion, questions, userFavouredSubjectQuestions };
+	async function getQuestion(_id) {
+		try {
+			const _question = await getDoc(database.questionID(_id));
+			setQuestion({
+				title: _question.data().title,
+				desc: _question.data().desc,
+				attachment: _question.data().attachment,
+				user: {
+					avatar: _question.data().user.avatar,
+					name: _question.data().user.name,
+					uid: _question.data().user.uid,
+				},
+				subject: _question.data().subject,
+			});
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		}
+	}
+
+	return {
+		addNewQuestion,
+		questions,
+		userFavouredSubjectQuestions,
+		currentQuestion,
+		getQuestion,
+	};
 }

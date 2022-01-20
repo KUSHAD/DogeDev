@@ -40,15 +40,16 @@ export default function FavSubjects({ navigation }) {
 					</ListItem>
 				)}
 			/>
-			{subs.length !== 0 && (
-				<Button
-					loading={isLoading}
-					title='Proceed'
-					iconRight
-					onPress={() => setFavSubjects(subs, navigation)}
-					icon={<Icon name='arrow-right-alt' color={colors.white} />}
-				/>
-			)}
+			{subs.length !== 0 &&
+				subs.sort().join(',') !== authUser.favSubs.sort().join(',') && (
+					<Button
+						loading={isLoading}
+						title='Proceed'
+						iconRight
+						onPress={() => setFavSubjects(subs, navigation)}
+						icon={<Icon name='arrow-right-alt' color={colors.white} />}
+					/>
+				)}
 		</>
 	);
 }

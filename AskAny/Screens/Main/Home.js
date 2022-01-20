@@ -6,7 +6,7 @@ import Container from '../../Components/Container';
 import QuestionsListItem from '../../Components/QuestionsListItem';
 import { useQuestions } from '../../hooks/useQuestions';
 
-export default function Home() {
+export default function Home({ navigation }) {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const { userFavouredSubjectQuestions, questions } = useQuestions();
 	useEffect(() => {
@@ -41,7 +41,9 @@ export default function Home() {
 			}
 			data={questions}
 			keyExtractor={item => item._id}
-			renderItem={({ item }) => <QuestionsListItem question={item} />}
+			renderItem={({ item }) => (
+				<QuestionsListItem question={item} navigation={navigation} />
+			)}
 		/>
 	) : (
 		<Container>

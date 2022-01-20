@@ -1,9 +1,21 @@
 import { SafeAreaView, View } from 'react-native';
 import { colors, ListItem, Text, Avatar } from 'react-native-elements';
 
-export default function QuestionsListItem({ question }) {
+export default function QuestionsListItem({ question, navigation }) {
 	return (
-		<ListItem bottomDivider topDivider>
+		<ListItem
+			bottomDivider
+			topDivider
+			onPress={() =>
+				navigation.navigate('ViewQuestion', {
+					title:
+						question.title.length < 30
+							? question.title
+							: question.desc.slice(0, 30) + '.....',
+					id: question._id,
+				})
+			}
+		>
 			<ListItem.Content>
 				<View style={{ flexDirection: 'row' }}>
 					<Avatar source={{ uri: question.user.avatar }} size='small' />

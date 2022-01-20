@@ -16,4 +16,8 @@ export const database = {
 	questionCol: () => {
 		return collection(firebaseFirestore, 'questions');
 	},
+	questionID: id => {
+		const dbCollection = collection(firebaseFirestore, 'questions');
+		return doc(dbCollection, id);
+	},
 };

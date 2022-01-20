@@ -4,6 +4,7 @@ import { colors, Image } from 'react-native-elements';
 import FavSubjects from '../Screens/FavSubjects';
 import NewQuestion from '../Screens/Main/NewQuestion';
 import AdditionalConfigsQ from '../Screens/Main/AdditionalConfigsQ';
+import ViewQuestion from '../Screens/Main/ViewQuestion';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -45,6 +46,17 @@ export default function MainStack() {
 					},
 					headerTintColor: colors.white,
 				}}
+			/>
+			<Stack.Screen
+				name='ViewQuestion'
+				component={ViewQuestion}
+				options={({ route }) => ({
+					headerTitle: `${route.params.title}`,
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+				})}
 			/>
 			<Stack.Screen
 				name='AdditionalConfigsQ'
