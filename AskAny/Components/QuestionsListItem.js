@@ -11,7 +11,7 @@ export default function QuestionsListItem({ question, navigation }) {
 					title:
 						question.title.length < 30
 							? question.title
-							: question.desc.slice(0, 30) + '.....',
+							: question.title.slice(0, 30) + '.....',
 					id: question._id,
 				})
 			}
@@ -27,7 +27,7 @@ export default function QuestionsListItem({ question, navigation }) {
 				<Text h3>
 					{question.title.length < 30
 						? question.title
-						: question.desc.slice(0, 30) + '.....'}
+						: question.title.slice(0, 30) + '.....'}
 				</Text>
 				<Text h4 style={{ color: colors.grey3 }}>
 					{question.desc.length < 60

@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native';
 import QuestionsCard from '../../Components/QuestionCard';
 import { useQuestions } from '../../hooks/useQuestions';
 
-export default function ViewQuestion({ route }) {
+export default function ViewQuestion({ route, navigation }) {
 	const { currentQuestion, getQuestion } = useQuestions();
 	useEffect(() => {
 		async function get() {
@@ -14,7 +14,7 @@ export default function ViewQuestion({ route }) {
 	return (
 		<>
 			<ScrollView>
-				<QuestionsCard question={currentQuestion} />
+				<QuestionsCard question={currentQuestion} navigation={navigation} />
 			</ScrollView>
 		</>
 	);

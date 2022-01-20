@@ -5,6 +5,7 @@ import FavSubjects from '../Screens/FavSubjects';
 import NewQuestion from '../Screens/Main/NewQuestion';
 import AdditionalConfigsQ from '../Screens/Main/AdditionalConfigsQ';
 import ViewQuestion from '../Screens/Main/ViewQuestion';
+import AnswerQuestion from '../Screens/Main/AnswerQuestion';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -68,6 +69,20 @@ export default function MainStack() {
 					},
 					headerTintColor: colors.white,
 				}}
+			/>
+			<Stack.Screen
+				name='Answer'
+				component={AnswerQuestion}
+				options={({ route }) => ({
+					headerTitle:
+						route.params.question.title.length < 30
+							? route.params.question.title
+							: route.params.question.title.slice(0, 30) + '.....',
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+				})}
 			/>
 		</Stack.Navigator>
 	);

@@ -16,7 +16,9 @@ export function useAttachments() {
 				quality: 1,
 				base64: true,
 			});
-			setAttachmentSrc(`data:image/jpg;base64,${data.base64}`);
+			setAttachmentSrc(
+				data.base64 ? `data:image/jpg;base64,${data.base64}` : ''
+			);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
 		}

@@ -1,0 +1,108 @@
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import {
+	SafeAreaView,
+	ScrollView,
+	Image,
+	TouchableOpacity,
+} from 'react-native';
+import { Button, Input, colors } from 'react-native-elements';
+import Toast from 'react-native-simple-toast';
+import ImageModal from '../../Components/ImageModal';
+import QuestionsCard from '../../Components/QuestionCard';
+import { useAttachments } from '../../hooks/useAttachments';
+export default function AnswerQuestion({ route, navigation }) {
+	const { pickImageFromGallery, attachmentSrc, removeAttachment } =
+		useAttachments();
+	const [modal, setModal] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const { control, handleSubmit } = useForm({
+		mode: 'all',
+		defaultValues: {
+			text: '',
+		},
+	});
+
+	function onSubmit({ text }) {
+		try {
+			setIsLoading(true);
+			navigation.pop();
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	return (
+		<>
+			<ScrollView>
+				<QuestionsCard question={route.params.question} />
+				<SafeAreaView style={{ width: '80%', marginStart: '10%' }}>
+					<Controller
+						rules={{
+							required: 'Answer text is required',
+							maxLength: {
+								value: 500,
+								message: 'Answer text shoulbe be maximum 500 characters',
+							},
+						}}
+						control={control}
+						name='text'
+						render={({
+							formState: { errors },
+							field: { onBlur, onChange, value },
+						}) => (
+							<Input
+								multiline
+								numberOfLines={5}
+								label='Answer This Question'
+								containerStyle={{ marginTop: 10 }}
+								value={value}
+								onChangeText={onChange}
+								onBlur={onBlur}
+								errorMessage={errors?.text?.message}
+							/>
+						)}
+					/>
+					<Button
+						onPress={pickImageFromGallery}
+						raised
+						title='Add Attachment'
+						containerStyle={{ marginTop: 10, marginBottom: 10 }}
+					/>
+					{Boolean(attachmentSrc) && (
+						<>
+							<TouchableOpacity
+								style={{ marginTop: 10 }}
+								onPress={() => setModal(true)}
+								onLongPress={() => pickImageFromGallery()}
+							>
+								<Image
+									source={{ uri: attachmentSrc }}
+									style={{ width: `100%`, aspectRatio: 1 / 1 }}
+								/>
+							</TouchableOpacity>
+							<Button
+								loading={isLoading}
+								onPress={removeAttachment}
+								type='outline'
+								buttonStyle={{ borderColor: colors.error }}
+								titleStyle={{ color: colors.error }}
+								title='Remove Attachment'
+								containerStyle={{ marginTop: 10, marginBottom: 10 }}
+							/>
+						</>
+					)}
+					<Button title='Answer' raised onPress={handleSubmit(onSubmit)} />
+				</SafeAreaView>
+			</ScrollView>
+			<ImageModal
+				isOpen={modal}
+				imgUri={attachmentSrc}
+				onDismiss={() => setModal(false)}
+			/>
+		</>
+	);
+}

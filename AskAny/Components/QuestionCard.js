@@ -4,7 +4,7 @@ import { View, Image } from 'react-native';
 import { colors, Text, Card, Button } from 'react-native-elements';
 import ImageModal from './ImageModal';
 
-export default function QuestionsCard({ question }) {
+export default function QuestionsCard({ question, navigation }) {
 	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<>
@@ -26,9 +26,15 @@ export default function QuestionsCard({ question }) {
 						</TouchableOpacity>
 					</>
 				)}
-				<View style={{ marginTop: 10, width: `50%`, marginStart: `50%` }}>
-					<Button title='Answer this' raised />
-				</View>
+				{Boolean(navigation) && (
+					<View style={{ marginTop: 10, width: `50%`, marginStart: `50%` }}>
+						<Button
+							title='Answer this'
+							raised
+							onPress={() => navigation.navigate('Answer', { question })}
+						/>
+					</View>
+				)}
 			</Card>
 			<ImageModal
 				imgUri={question.attachment || ''}
