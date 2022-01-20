@@ -33,4 +33,5 @@ export const environment = {
 		url: `https://api.cloudinary.com/v1_1/cloud_name/image/upload`,
 		preset: `upload_preset`,
 	},
+	pusNotifEndpoint: 'https://exp.host/--/api/v2/push/send',
 };

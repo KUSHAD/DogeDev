@@ -33,4 +33,5 @@ export const environment = {
 		url: `https://api.cloudinary.com/v1_1/kushad/image/upload`,
 		preset: `askanyDogeDev`,
 	},
+	pusNotifEndpoint: 'https://exp.host/--/api/v2/push/send',
 };

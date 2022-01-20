@@ -20,4 +20,7 @@ export const database = {
 		const dbCollection = collection(firebaseFirestore, 'questions');
 		return doc(dbCollection, id);
 	},
+	answerCol: () => {
+		return collection(firebaseFirestore, 'answers');
+	},
 };

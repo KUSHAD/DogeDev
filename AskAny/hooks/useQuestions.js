@@ -21,6 +21,7 @@ export function useQuestions() {
 			name: '',
 			uid: '',
 			avatar: '',
+			pushToken:''
 		},
 		subject: '',
 	});
@@ -70,6 +71,7 @@ export function useQuestions() {
 					avatar: _question.data().user.avatar,
 					name: _question.data().user.name,
 					uid: _question.data().user.uid,
+					pushToken: _question.data().user.pushToken,
 				},
 				subject: _question.data().subject,
 			});

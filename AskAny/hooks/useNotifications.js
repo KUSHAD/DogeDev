@@ -1,5 +1,6 @@
 import Toast from 'react-native-simple-toast';
 import * as Notifications from 'expo-notifications';
+import { environment } from '../environment';
 
 export function useNotifications() {
 	async function registerForPushNotificationsAsync() {
@@ -33,5 +34,27 @@ export function useNotifications() {
 		return token;
 	}
 
-	return { registerForPushNotificationsAsync };
+	async function sendPushNotification(token, text, authUser) {
+		try {
+			const body = {
+				to: token,
+				title: `${authUser.name} answered your question`,
+				body: text.length < 30 ? text : text.slice(0, 30) + '.....',
+			};
+			await fetch(environment.pusNotifEndpoint, {
+				headers: {
+					Accept: 'application/json',
+					'Accept-Encoding': 'gzip, deflate',
+					'Content-Type': 'application/json',
+					host: 'expo.host',
+				},
+				method: 'POST',
+				body: JSON.stringify(body),
+			});
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		}
+	}
+
+	return { registerForPushNotificationsAsync, sendPushNotification };
 }

@@ -10,10 +10,20 @@ import { Button, Input, colors } from 'react-native-elements';
 import Toast from 'react-native-simple-toast';
 import ImageModal from '../../Components/ImageModal';
 import QuestionsCard from '../../Components/QuestionCard';
+import { useAnswers } from '../../hooks/useAnswers';
 import { useAttachments } from '../../hooks/useAttachments';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useAuthProvider } from '../../Providers/AuthProvider';
 export default function AnswerQuestion({ route, navigation }) {
-	const { pickImageFromGallery, attachmentSrc, removeAttachment } =
-		useAttachments();
+	const {
+		pickImageFromGallery,
+		attachmentSrc,
+		removeAttachment,
+		uploadAttachment,
+	} = useAttachments();
+	const { newAnswer } = useAnswers();
+	const { sendPushNotification } = useNotifications();
+	const { authUser } = useAuthProvider();
 	const [modal, setModal] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -24,9 +34,21 @@ export default function AnswerQuestion({ route, navigation }) {
 		},
 	});
 
-	function onSubmit({ text }) {
+	async function onSubmit({ text }) {
 		try {
 			setIsLoading(true);
+			const imgUrl = await uploadAttachment();
+			await newAnswer({
+				attachment: imgUrl || '',
+				text: text,
+				questionID: route.params.question._id,
+				user: { name: authUser.name },
+			});
+			await sendPushNotification(
+				route.params.question.user.pushToken,
+				text,
+				authUser
+			);
 			navigation.pop();
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
