@@ -75,3 +75,6 @@ client_creds.json
 #expo
 .expo/
 .expo-shared/
+
+#environment
+environment.js
