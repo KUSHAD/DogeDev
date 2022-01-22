@@ -13,6 +13,7 @@ import QuestionsCard from '../../Components/QuestionCard';
 import { useAnswers } from '../../hooks/useAnswers';
 import { useAttachments } from '../../hooks/useAttachments';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useQuestions } from '../../hooks/useQuestions';
 import { useAuthProvider } from '../../Providers/AuthProvider';
 export default function AnswerQuestion({ route, navigation }) {
 	const {
@@ -23,6 +24,7 @@ export default function AnswerQuestion({ route, navigation }) {
 	} = useAttachments();
 	const { newAnswer } = useAnswers();
 	const { sendPushNotification, addNotification } = useNotifications();
+	const { markQuestionAnswered } = useQuestions();
 	const { authUser } = useAuthProvider();
 	const [modal, setModal] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +51,7 @@ export default function AnswerQuestion({ route, navigation }) {
 				authUser.name,
 				route.params.question.title
 			);
+			await markQuestionAnswered(route.params.question._id);
 			await sendPushNotification(
 				route.params.question.user.pushToken,
 				text,

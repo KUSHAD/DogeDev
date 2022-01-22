@@ -39,7 +39,6 @@ export default function AdditionalConfigsQ({ route, navigation }) {
 		try {
 			setIsLoading(true);
 			const imgUrl = await uploadAttachment();
-
 			await addNewQuestion({
 				title: title,
 				desc: desc,
@@ -80,7 +79,9 @@ export default function AdditionalConfigsQ({ route, navigation }) {
 							setSubjectSheet(true);
 						}}
 					/>
-					<Text>Selected Subject :- {subject || 'No subject selected'}</Text>
+					<Text h4 h4Style={{ marginTop: 5, marginBottom: 5 }}>
+						Selected Subject :- {subject || 'No subject selected'}
+					</Text>
 					<BottomSheet isVisible={subjectSheet}>
 						{environment.subjects.map(sub => (
 							<ListItem

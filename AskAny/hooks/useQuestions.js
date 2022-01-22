@@ -5,9 +5,12 @@ import {
 	orderBy,
 	serverTimestamp,
 	getDoc,
+	where,
+	updateDoc,
 } from 'firebase/firestore';
 import { useState } from 'react';
 import Toast from 'react-native-simple-toast';
+import { environment } from '../environment';
 import { database } from '../firebase';
 import { useAuthProvider } from '../Providers/AuthProvider';
 
@@ -35,6 +38,7 @@ export function useQuestions() {
 				attachment,
 				subject,
 				createdAt: serverTimestamp(),
+				status: environment.questionStats.unanswered,
 			});
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
@@ -42,7 +46,11 @@ export function useQuestions() {
 	}
 
 	async function userFavouredSubjectQuestions() {
-		const q = query(database.questionCol(), orderBy('createdAt', 'desc'));
+		const q = query(
+			database.questionCol(),
+			where('status', '==', environment.questionStats.unanswered),
+			orderBy('createdAt', 'desc')
+		);
 		onSnapshot(
 			q,
 			({ docs }) => {
@@ -84,11 +92,22 @@ export function useQuestions() {
 		}
 	}
 
+	async function markQuestionAnswered(_id) {
+		try {
+			await updateDoc(database.questionID(_id), {
+				status: environment.questionStats.answered,
+			});
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		}
+	}
+
 	return {
 		addNewQuestion,
 		questions,
 		userFavouredSubjectQuestions,
 		currentQuestion,
 		getQuestion,
+		markQuestionAnswered,
 	};
 }

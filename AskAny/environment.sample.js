@@ -34,4 +34,8 @@ export const environment = {
 		preset: `upload_preset`,
 	},
 	pusNotifEndpoint: 'https://exp.host/--/api/v2/push/send',
+	questionStats: {
+		answered: 'answered',
+		unanswered: 'unanswered',
+	},
 };
