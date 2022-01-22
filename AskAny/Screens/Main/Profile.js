@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { ScrollView, SafeAreaView } from 'react-native';
-import { Avatar, Card, ListItem, Text, Icon } from 'react-native-elements';
+import { SafeAreaView } from 'react-native';
+import {
+	Avatar,
+	Card,
+	ListItem,
+	Text,
+	Icon,
+	Button,
+	colors,
+} from 'react-native-elements';
 import { useAuthProvider } from '../../Providers/AuthProvider';
 import ImageModal from '../../Components/ImageModal';
 
 export default function Profile({ navigation }) {
 	const [showImage, setShowImage] = useState(false);
-	const { authUser } = useAuthProvider();
+	const { authUser, logout, isLoading } = useAuthProvider();
 	return (
 		<>
 			<Card>
@@ -23,8 +31,21 @@ export default function Profile({ navigation }) {
 						<Text h4>{authUser.email}</Text>
 					</SafeAreaView>
 				</SafeAreaView>
+				<Button
+					onPress={logout}
+					loading={isLoading}
+					title='Logout'
+					icon={<Icon name='logout' color={colors.white} />}
+					raised
+					containerStyle={{
+						marginTop: 10,
+					}}
+					buttonStyle={{
+						backgroundColor: colors.error,
+					}}
+				/>
 			</Card>
-			<ScrollView style={{ width: `95%`, marginStart: `2.5%` }}>
+			<SafeAreaView style={{ width: `95%`, marginStart: `2.5%` }}>
 				<ListItem
 					topDivider
 					bottomDivider
@@ -32,10 +53,10 @@ export default function Profile({ navigation }) {
 				>
 					<ListItem.Title>
 						<Icon name='book' />
-						Select your Favourite subject
+						Select your Favourite subjects
 					</ListItem.Title>
 				</ListItem>
-			</ScrollView>
+			</SafeAreaView>
 			<ImageModal
 				imgUri={authUser.avatar}
 				isOpen={showImage}

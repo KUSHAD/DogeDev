@@ -1,21 +1,26 @@
 import Toast from 'react-native-simple-toast';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
 	signInWithEmailAndPassword,
 	createUserWithEmailAndPassword,
 	onAuthStateChanged,
 	sendPasswordResetEmail,
+	signOut,
 } from 'firebase/auth';
 import { setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firebaseAuth, database } from '../firebase';
 import { useNotifications } from '../hooks/useNotifications';
 import { environment } from '../environment';
+import Container from '../Components/Container';
+import { colors } from 'react-native-elements';
+import { ActivityIndicator } from 'react-native';
 
 const Auth = createContext();
 
 export function AuthProvider({ children }) {
 	const { registerForPushNotificationsAsync } = useNotifications();
 	const [isLoading, setIsLoading] = useState(false);
+	const [authLoading, setAuthLoading] = useState(true);
 	const [authUser, setAuthUser] = useState({
 		email: '',
 		name: '',
@@ -79,35 +84,6 @@ export function AuthProvider({ children }) {
 		}
 	}
 
-	function getUserLoginStatus() {
-		setIsLoading(true);
-		onAuthStateChanged(
-			firebaseAuth,
-			async user => {
-				if (user) {
-					const dataInDB = await getDoc(database.userID(user.uid));
-					setAuthUser({
-						name: dataInDB.data().name,
-						avatar: dataInDB.data().avatar,
-						email: user.email,
-						uid: user.uid,
-						favSubs: dataInDB.data().favSubs,
-						pushToken: dataInDB.data().pushToken,
-					});
-					setIsLoggedIn(true);
-					setIsLoading(false);
-				} else {
-					setIsLoggedIn(false);
-					setIsLoading(false);
-				}
-			},
-			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-				setIsLoading(false);
-			}
-		);
-	}
-
 	async function resetPass({ email }) {
 		try {
 			setIsLoading(true);
@@ -139,18 +115,71 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	useEffect(() => {
+		const unsubscribe = onAuthStateChanged(
+			firebaseAuth,
+			async user => {
+				if (user) {
+					const dataInDB = await getDoc(database.userID(user.uid));
+					setAuthUser({
+						name: dataInDB.data().name,
+						avatar: dataInDB.data().avatar,
+						email: user.email,
+						uid: user.uid,
+						favSubs: dataInDB.data().favSubs,
+						pushToken: dataInDB.data().pushToken,
+					});
+					setIsLoggedIn(true);
+					setAuthLoading(false);
+				} else {
+					setIsLoggedIn(false);
+					setAuthLoading(false);
+				}
+			},
+			error => {
+				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				setAuthLoading(false);
+			}
+		);
+		return unsubscribe();
+	}, []);
+
+	async function logout() {
+		try {
+			setIsLoading(true);
+
+			setAuthUser({});
+			await signOut(firebaseAuth);
+			setIsLoggedIn(false);
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
 	const values = {
 		login,
 		isLoading,
 		signup,
 		authUser,
 		isLoggedIn,
-		getUserLoginStatus,
 		resetPass,
 		setFavSubjects,
+		logout,
 	};
 
-	return <Auth.Provider value={values}>{children}</Auth.Provider>;
+	return (
+		<Auth.Provider value={values}>
+			{authLoading ? (
+				<Container>
+					<ActivityIndicator color={colors.primary} size='large' />
+				</Container>
+			) : (
+				children
+			)}
+		</Auth.Provider>
+	);
 }
 
 export function useAuthProvider() {
