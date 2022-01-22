@@ -6,6 +6,7 @@ import NewQuestion from '../Screens/Main/NewQuestion';
 import AdditionalConfigsQ from '../Screens/Main/AdditionalConfigsQ';
 import ViewQuestion from '../Screens/Main/ViewQuestion';
 import AnswerQuestion from '../Screens/Main/AnswerQuestion';
+import MyQuestions from '../Screens/Main/MyQuestions';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -83,6 +84,17 @@ export default function MainStack() {
 					},
 					headerTintColor: colors.white,
 				})}
+			/>
+			<Stack.Screen
+				name='MyQuestion'
+				component={MyQuestions}
+				options={{
+					headerTitle: 'My Questions',
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+				}}
 			/>
 		</Stack.Navigator>
 	);

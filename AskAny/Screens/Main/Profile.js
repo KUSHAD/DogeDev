@@ -53,7 +53,17 @@ export default function Profile({ navigation }) {
 				>
 					<ListItem.Title>
 						<Icon name='book' />
-						Select your Favourite subjects
+						My Favourite subjects
+					</ListItem.Title>
+				</ListItem>
+				<ListItem
+					topDivider
+					bottomDivider
+					onPress={() => navigation.navigate('MyQuestion')}
+				>
+					<ListItem.Title>
+						<Icon name='receipt' />
+						My Questions
 					</ListItem.Title>
 				</ListItem>
 			</SafeAreaView>

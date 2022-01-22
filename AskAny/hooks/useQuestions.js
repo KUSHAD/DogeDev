@@ -16,6 +16,7 @@ import { useAuthProvider } from '../Providers/AuthProvider';
 
 export function useQuestions() {
 	const [questions, setQuestions] = useState([]);
+	const [myQuestions, setMyQuestions] = useState([]);
 	const [currentQuestion, setQuestion] = useState({
 		title: '',
 		desc: '',
@@ -102,6 +103,30 @@ export function useQuestions() {
 		}
 	}
 
+	async function getUserQuestions() {
+		const q = query(
+			database.questionCol(),
+			where('user.uid', '==', authUser.uid),
+			orderBy('createdAt', 'desc')
+		);
+
+		onSnapshot(
+			q,
+			({ docs }) => {
+				const _myQuestions = docs.map(_doc => {
+					return {
+						..._doc.data(),
+						_id: _doc.id,
+					};
+				});
+				setMyQuestions(_myQuestions);
+			},
+			error => {
+				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			}
+		);
+	}
+
 	return {
 		addNewQuestion,
 		questions,
@@ -109,5 +134,7 @@ export function useQuestions() {
 		currentQuestion,
 		getQuestion,
 		markQuestionAnswered,
+		myQuestions,
+		getUserQuestions,
 	};
 }

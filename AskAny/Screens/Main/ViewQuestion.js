@@ -1,14 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native';
 import { FlatList } from 'react-native';
 import { ScrollView } from 'react-native';
-import { Card, Text } from 'react-native-elements';
+import { Card, Text, colors } from 'react-native-elements';
 import AnswerCard from '../../Components/AnswerCard';
 import QuestionsCard from '../../Components/QuestionCard';
 import { useAnswers } from '../../hooks/useAnswers';
 import { useQuestions } from '../../hooks/useQuestions';
 
 export default function ViewQuestion({ route, navigation }) {
+	const [isRefreshing, setIsRefreshing] = useState(false);
 	const { currentQuestion, getQuestion } = useQuestions();
 	const { getAnswersQuestion, answers } = useAnswers();
 	useEffect(() => {
@@ -18,9 +20,30 @@ export default function ViewQuestion({ route, navigation }) {
 		}
 		get();
 	}, [route.params.id]);
+	async function onRefresh() {
+		setIsRefreshing(true);
+		await getQuestion(route.params.id);
+		await getAnswersQuestion(route.params.id);
+		setIsRefreshing(false);
+	}
 	return (
 		<>
-			<ScrollView>
+			<ScrollView
+				refreshControl={
+					<RefreshControl
+						refreshing={isRefreshing}
+						onRefresh={onRefresh}
+						enabled
+						colors={[
+							colors.primary,
+							colors.secondary,
+							colors.success,
+							colors.warning,
+							colors.error,
+						]}
+					/>
+				}
+			>
 				<QuestionsCard
 					question={{ ...currentQuestion, id: route.params.id }}
 					navigation={navigation}
@@ -45,6 +68,22 @@ export default function ViewQuestion({ route, navigation }) {
 							{answers.length} Answers
 						</Text>
 						<FlatList
+							refreshing={isRefreshing}
+							onRefresh={onRefresh}
+							refreshControl={
+								<RefreshControl
+									refreshing={isRefreshing}
+									onRefresh={onRefresh}
+									enabled
+									colors={[
+										colors.primary,
+										colors.secondary,
+										colors.success,
+										colors.warning,
+										colors.error,
+									]}
+								/>
+							}
 							initialNumToRender={10}
 							data={answers}
 							keyExtractor={item => item._id}
