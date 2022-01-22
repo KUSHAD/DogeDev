@@ -23,4 +23,7 @@ export const database = {
 	answerCol: () => {
 		return collection(firebaseFirestore, 'answers');
 	},
+	notificationCol: () => {
+		return collection(firebaseFirestore, 'notification');
+	},
 };

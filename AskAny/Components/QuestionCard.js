@@ -31,7 +31,11 @@ export default function QuestionsCard({ question, navigation }) {
 						<Button
 							title='Answer this'
 							raised
-							onPress={() => navigation.navigate('Answer', { question })}
+							onPress={() =>
+								navigation.navigate('Answer', {
+									question: { ...question, _id: question.id },
+								})
+							}
 						/>
 					</View>
 				)}

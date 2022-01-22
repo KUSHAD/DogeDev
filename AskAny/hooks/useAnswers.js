@@ -1,4 +1,4 @@
-import { addDoc } from 'firebase/firestore';
+import { addDoc, serverTimestamp } from 'firebase/firestore';
 import Toast from 'react-native-simple-toast';
 import { database } from '../firebase';
 
@@ -10,6 +10,7 @@ export function useAnswers() {
 				attachment,
 				user,
 				questionID,
+				createdAt: serverTimestamp(),
 			});
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);

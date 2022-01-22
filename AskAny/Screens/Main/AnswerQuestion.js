@@ -22,7 +22,7 @@ export default function AnswerQuestion({ route, navigation }) {
 		uploadAttachment,
 	} = useAttachments();
 	const { newAnswer } = useAnswers();
-	const { sendPushNotification } = useNotifications();
+	const { sendPushNotification, addNotification } = useNotifications();
 	const { authUser } = useAuthProvider();
 	const [modal, setModal] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -42,8 +42,13 @@ export default function AnswerQuestion({ route, navigation }) {
 				attachment: imgUrl || '',
 				text: text,
 				questionID: route.params.question._id,
-				user: { name: authUser.name },
+				user: authUser.name,
 			});
+			await addNotification(
+				route.params.question.user.uid,
+				authUser.name,
+				route.params.question.title
+			);
 			await sendPushNotification(
 				route.params.question.user.pushToken,
 				text,
@@ -89,6 +94,7 @@ export default function AnswerQuestion({ route, navigation }) {
 						)}
 					/>
 					<Button
+						loading={isLoading}
 						onPress={pickImageFromGallery}
 						raised
 						title='Add Attachment'
@@ -117,7 +123,12 @@ export default function AnswerQuestion({ route, navigation }) {
 							/>
 						</>
 					)}
-					<Button title='Answer' raised onPress={handleSubmit(onSubmit)} />
+					<Button
+						title='Answer'
+						raised
+						onPress={handleSubmit(onSubmit)}
+						loading={isLoading}
+					/>
 				</SafeAreaView>
 			</ScrollView>
 			<ImageModal

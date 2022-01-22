@@ -59,14 +59,14 @@ export function AuthProvider({ children }) {
 			await setDoc(database.userID(user.user.uid), {
 				email,
 				name,
-				avatar: `https://avatars.dicebear.com/api/jdenticon/${user.user.uid}.svg`,
+				avatar: `https://res.cloudinary.com/kushad/image/upload/v1632819507/vhm1y9kojafqjpfnvmb9.png`,
 				pushToken: pushToken,
 				favSubs: environment.subjects,
 			});
 			setAuthUser({
 				email,
 				name,
-				avatar: `https://avatars.dicebear.com/api/jdenticon/${user.user.uid}.svg`,
+				avatar: `https://res.cloudinary.com/kushad/image/upload/v1632819507/vhm1y9kojafqjpfnvmb9.png`,
 				uid: user.user.uid,
 				favSubs: environment.subjects,
 				pushToken: pushToken,

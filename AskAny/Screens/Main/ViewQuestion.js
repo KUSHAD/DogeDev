@@ -14,7 +14,10 @@ export default function ViewQuestion({ route, navigation }) {
 	return (
 		<>
 			<ScrollView>
-				<QuestionsCard question={currentQuestion} navigation={navigation} />
+				<QuestionsCard
+					question={{ ...currentQuestion, id: route.params.id }}
+					navigation={navigation}
+				/>
 			</ScrollView>
 		</>
 	);

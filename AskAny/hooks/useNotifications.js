@@ -1,6 +1,8 @@
 import Toast from 'react-native-simple-toast';
 import * as Notifications from 'expo-notifications';
 import { environment } from '../environment';
+import { addDoc, serverTimestamp } from 'firebase/firestore';
+import { database } from '../firebase';
 
 export function useNotifications() {
 	async function registerForPushNotificationsAsync() {
@@ -56,5 +58,21 @@ export function useNotifications() {
 		}
 	}
 
-	return { registerForPushNotificationsAsync, sendPushNotification };
+	async function addNotification(targetUser, byUser, qTitle) {
+		try {
+			await addDoc(database.notificationCol(), {
+				targetUser,
+				body: `${byUser} answered your question ${qTitle}`,
+				createdAt: serverTimestamp(),
+			});
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		}
+	}
+
+	return {
+		registerForPushNotificationsAsync,
+		sendPushNotification,
+		addNotification,
+	};
 }

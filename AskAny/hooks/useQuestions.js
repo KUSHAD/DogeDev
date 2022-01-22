@@ -21,7 +21,7 @@ export function useQuestions() {
 			name: '',
 			uid: '',
 			avatar: '',
-			pushToken:''
+			pushToken: '',
 		},
 		subject: '',
 	});
@@ -47,7 +47,11 @@ export function useQuestions() {
 			q,
 			({ docs }) => {
 				const _questions = docs
-					.filter(_q => authUser.favSubs.includes(_q.data().subject))
+					.filter(
+						_q =>
+							authUser.favSubs.includes(_q.data().subject) ||
+							_q.data().user.uid === authUser.uid
+					)
 					.map(_q => {
 						return {
 							..._q.data(),
