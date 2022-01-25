@@ -26,4 +26,8 @@ export const database = {
 	notificationCol: () => {
 		return collection(firebaseFirestore, 'notification');
 	},
+	notificationID: id => {
+		const dbCollection = collection(firebaseFirestore, 'notification');
+		return doc(dbCollection, id);
+	},
 };

@@ -38,4 +38,8 @@ export const environment = {
 		answered: 'answered',
 		unanswered: 'unanswered',
 	},
+	notificationStatus: {
+		read: 'read',
+		unread: 'unread',
+	},
 };

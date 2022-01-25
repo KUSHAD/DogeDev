@@ -1,10 +1,22 @@
 import Toast from 'react-native-simple-toast';
 import * as Notifications from 'expo-notifications';
 import { environment } from '../environment';
-import { addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+	addDoc,
+	onSnapshot,
+	orderBy,
+	query,
+	serverTimestamp,
+	updateDoc,
+	where,
+} from 'firebase/firestore';
 import { database } from '../firebase';
+import { useState } from 'react';
 
 export function useNotifications() {
+	const [isLoading, setIsLoading] = useState(false);
+	const [unreadNotifsNum, setUnreadNotifsNum] = useState(0);
+	const [notifs, setNotifs] = useState([]);
 	async function registerForPushNotificationsAsync() {
 		let token;
 		const { status: existingStatus } =
@@ -64,9 +76,66 @@ export function useNotifications() {
 				targetUser,
 				body: `${byUser} answered your question ${qTitle}`,
 				createdAt: serverTimestamp(),
+				status: environment.notificationStatus.unread,
 			});
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		}
+	}
+
+	async function getUserUnreadNotifications(_uid) {
+		const q = query(
+			database.notificationCol(),
+			where('status', '==', environment.notificationStatus.unread),
+			where('targetUser', '==', _uid),
+			orderBy('createdAt', 'desc')
+		);
+
+		onSnapshot(
+			q,
+			({ docs }) => {
+				setUnreadNotifsNum(docs.length);
+			},
+			error => {
+				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			}
+		);
+	}
+
+	async function getUserNotification(_uid) {
+		const q = query(
+			database.notificationCol(),
+			where('targetUser', '==', _uid),
+			orderBy('createdAt', 'desc')
+		);
+
+		onSnapshot(
+			q,
+			({ docs }) => {
+				const _docs = docs.map(_doc => {
+					return {
+						..._doc.data(),
+						_id: _doc.id,
+					};
+				});
+				setNotifs(_docs);
+			},
+			error => {
+				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			}
+		);
+	}
+
+	async function markAsRead(_id) {
+		try {
+			setIsLoading(true);
+			await updateDoc(database.notificationID(_id), {
+				status: environment.notificationStatus.read,
+			});
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
@@ -74,5 +143,11 @@ export function useNotifications() {
 		registerForPushNotificationsAsync,
 		sendPushNotification,
 		addNotification,
+		getUserUnreadNotifications,
+		unreadNotifsNum,
+		getUserNotification,
+		notifs,
+		markAsRead,
+		isLoading,
 	};
 }
