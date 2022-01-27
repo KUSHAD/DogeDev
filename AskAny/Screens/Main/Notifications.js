@@ -6,7 +6,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { useAuthProvider } from '../../Providers/AuthProvider';
 import NotificationListItem from '../../Components/NotificationListItem';
 
-export default function Notifications() {
+export default function Notifications({ navigation }) {
 	const { authUser } = useAuthProvider();
 	const { getUserNotification, notifs } = useNotifications();
 	useEffect(() => {
@@ -26,7 +26,9 @@ export default function Notifications() {
 			data={notifs}
 			keyExtractor={item => item._id}
 			initialNumToRender={10}
-			renderItem={({ item }) => <NotificationListItem notification={item} />}
+			renderItem={({ item }) => (
+				<NotificationListItem notification={item} navigation={navigation} />
+			)}
 		/>
 	);
 }

@@ -70,13 +70,15 @@ export function useNotifications() {
 		}
 	}
 
-	async function addNotification(targetUser, byUser, qTitle) {
+	async function addNotification(targetUser, byUser, qTitle, qID) {
 		try {
 			await addDoc(database.notificationCol(), {
 				targetUser,
 				body: `${byUser} answered your question ${qTitle}`,
 				createdAt: serverTimestamp(),
 				status: environment.notificationStatus.unread,
+				qTitle,
+				qID,
 			});
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
@@ -87,8 +89,7 @@ export function useNotifications() {
 		const q = query(
 			database.notificationCol(),
 			where('status', '==', environment.notificationStatus.unread),
-			where('targetUser', '==', _uid),
-			orderBy('createdAt', 'desc')
+			where('targetUser', '==', _uid)
 		);
 
 		onSnapshot(

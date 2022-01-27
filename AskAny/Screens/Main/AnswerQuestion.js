@@ -49,7 +49,8 @@ export default function AnswerQuestion({ route, navigation }) {
 			await addNotification(
 				route.params.question.user.uid,
 				authUser.name,
-				route.params.question.title
+				route.params.question.title,
+				route.params.question._id
 			);
 			await markQuestionAnswered(route.params.question._id);
 			await sendPushNotification(
