@@ -12,6 +12,7 @@ import NotificationButton from '../Components/NotificationButton';
 import SearchButton from '../Components/SearchButton';
 import Notifications from '../Screens/Main/Notifications';
 import Search from '../Screens/Main/Search';
+import EditProfile from '../Screens/Main/EditProfile';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -124,6 +125,17 @@ export default function MainStack() {
 				component={Search}
 				options={{
 					headerTitle: 'Search Questions',
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+				}}
+			/>
+			<Stack.Screen
+				name='EditProfile'
+				component={EditProfile}
+				options={{
+					headerTitle: 'Edit Profile',
 					headerStyle: {
 						backgroundColor: colors.primary,
 					},

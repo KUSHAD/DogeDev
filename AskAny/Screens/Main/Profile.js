@@ -49,6 +49,16 @@ export default function Profile({ navigation }) {
 				<ListItem
 					topDivider
 					bottomDivider
+					onPress={() => navigation.navigate('EditProfile')}
+				>
+					<ListItem.Title>
+						<Icon name='person' />
+						Update Profile
+					</ListItem.Title>
+				</ListItem>
+				<ListItem
+					topDivider
+					bottomDivider
 					onPress={() => navigation.navigate('FavSubjects')}
 				>
 					<ListItem.Title>

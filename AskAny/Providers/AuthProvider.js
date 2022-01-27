@@ -6,6 +6,7 @@ import {
 	onAuthStateChanged,
 	sendPasswordResetEmail,
 	signOut,
+	updatePassword,
 } from 'firebase/auth';
 import { setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firebaseAuth, database } from '../firebase';
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
 	const { registerForPushNotificationsAsync } = useNotifications();
 	const [isLoading, setIsLoading] = useState(false);
 	const [authLoading, setAuthLoading] = useState(true);
+	const [firebaseUser, setFirebaseUser] = useState();
 	const [authUser, setAuthUser] = useState({
 		email: '',
 		name: '',
@@ -120,6 +122,7 @@ export function AuthProvider({ children }) {
 			firebaseAuth,
 			async user => {
 				if (user) {
+					setFirebaseUser(user);
 					const dataInDB = await getDoc(database.userID(user.uid));
 					setAuthUser({
 						name: dataInDB.data().name,
@@ -158,6 +161,45 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	async function updateName({ name }) {
+		try {
+			setIsLoading(true);
+			await updateDoc(database.userID(authUser.uid), {
+				name: name,
+			});
+			setAuthUser({ ...authUser, name: name });
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	async function updatePass({ pass }) {
+		try {
+			setIsLoading(true);
+			await updatePassword(firebaseUser, pass);
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	async function updateEmail({ email }) {
+		try {
+			setIsLoading(true);
+			await updateDoc(database.userID(authUser.uid), {
+				email: email,
+			});
+			setAuthUser({ ...authUser, email: email });
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
 	const values = {
 		login,
 		isLoading,
@@ -167,6 +209,9 @@ export function AuthProvider({ children }) {
 		resetPass,
 		setFavSubjects,
 		logout,
+		updatePass,
+		updateEmail,
+		updateName,
 	};
 
 	return (
