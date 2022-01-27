@@ -4,7 +4,7 @@ import { useNotifications } from '../hooks/useNotifications';
 
 export default function NotificationListItem({ notification, navigation }) {
 	return (
-		<ListItem>
+		<ListItem topDivider bottomDivider>
 			<ListItem.Swipeable
 				rightContent={
 					<RightContent

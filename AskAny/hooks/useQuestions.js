@@ -17,6 +17,7 @@ import { useAuthProvider } from '../Providers/AuthProvider';
 export function useQuestions() {
 	const [questions, setQuestions] = useState([]);
 	const [myQuestions, setMyQuestions] = useState([]);
+	const [searchQuestions, setSearchQuestions] = useState([]);
 	const [currentQuestion, setQuestion] = useState({
 		title: '',
 		desc: '',
@@ -127,6 +128,33 @@ export function useQuestions() {
 		);
 	}
 
+	async function searchQuestion(_searchString) {
+		if (!_searchString) {
+			setSearchQuestions([]);
+			return;
+		}
+		const q = query(
+			database.questionCol(),
+			where('title', '>=', _searchString)
+		);
+		onSnapshot(
+			q,
+			({ docs }) => {
+				const _docs = docs.map(_doc => {
+					return {
+						..._doc.data(),
+						_id: _doc.id,
+					};
+				});
+				setSearchQuestions(_docs);
+			},
+			error => {
+				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				console.log(error);
+			}
+		);
+	}
+
 	return {
 		addNewQuestion,
 		questions,
@@ -136,5 +164,7 @@ export function useQuestions() {
 		markQuestionAnswered,
 		myQuestions,
 		getUserQuestions,
+		searchQuestion,
+		searchQuestions,
 	};
 }

@@ -1,5 +1,6 @@
 import { Stack } from '.';
 import MainTab from './MainTab';
+import { View } from 'react-native';
 import { colors, Image } from 'react-native-elements';
 import FavSubjects from '../Screens/FavSubjects';
 import NewQuestion from '../Screens/Main/NewQuestion';
@@ -8,7 +9,9 @@ import ViewQuestion from '../Screens/Main/ViewQuestion';
 import AnswerQuestion from '../Screens/Main/AnswerQuestion';
 import MyQuestions from '../Screens/Main/MyQuestions';
 import NotificationButton from '../Components/NotificationButton';
+import SearchButton from '../Components/SearchButton';
 import Notifications from '../Screens/Main/Notifications';
+import Search from '../Screens/Main/Search';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -26,7 +29,13 @@ export default function MainStack() {
 							style={{ height: 50, width: 50 }}
 						/>
 					),
-					headerRight: () => <NotificationButton navigation={navigation} />,
+					headerRight: () => (
+						<>
+							<SearchButton navigation={navigation} />
+							<View style={{ marginEnd: 20 }} />
+							<NotificationButton navigation={navigation} />
+						</>
+					),
 				})}
 				component={MainTab}
 			/>
@@ -104,6 +113,17 @@ export default function MainStack() {
 				name='Notification'
 				options={{
 					headerTitle: 'My Notifications',
+					headerStyle: {
+						backgroundColor: colors.primary,
+					},
+					headerTintColor: colors.white,
+				}}
+			/>
+			<Stack.Screen
+				name='Search'
+				component={Search}
+				options={{
+					headerTitle: 'Search Questions',
 					headerStyle: {
 						backgroundColor: colors.primary,
 					},
