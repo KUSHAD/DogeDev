@@ -74,13 +74,13 @@ export default function Login({ navigation }) {
 							rightIcon={
 								isVisible ? (
 									<Icon
-										name='visibility'
+										name='visibility-off'
 										activeOpacity={0.2}
 										onPress={() => setIsVisible(false)}
 									/>
 								) : (
 									<Icon
-										name='visibility-off'
+										name='visibility'
 										activeOpacity={0.2}
 										onPress={() => setIsVisible(true)}
 									/>

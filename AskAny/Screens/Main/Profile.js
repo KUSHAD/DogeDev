@@ -49,7 +49,12 @@ export default function Profile({ navigation }) {
 				<ListItem
 					topDivider
 					bottomDivider
-					onPress={() => navigation.navigate('EditProfile')}
+					onPress={() =>
+						navigation.navigate('EditProfile', {
+							name: authUser.name,
+							email: authUser.email,
+						})
+					}
 				>
 					<ListItem.Title>
 						<Icon name='person' />

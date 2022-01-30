@@ -7,6 +7,7 @@ import { environment } from '../../environment';
 export default function Signup({ navigation }) {
 	const { isLoading, signup } = useAuthProvider();
 	const [isVisible, setIsVisible] = useState(false);
+	const [confVisible, setConfVisible] = useState(false);
 	const { control, handleSubmit, watch } = useForm({
 		defaultValues: {
 			email: '',
@@ -135,19 +136,19 @@ export default function Signup({ navigation }) {
 							leftIcon={<Icon name='lock' />}
 							label='Confirm Password'
 							errorMessage={errors?.verifyPass?.message}
-							secureTextEntry={!isVisible}
+							secureTextEntry={!confVisible}
 							rightIcon={
-								isVisible ? (
+								confVisible ? (
 									<Icon
 										name='visibility-off'
 										activeOpacity={0.2}
-										onPress={() => setIsVisible(false)}
+										onPress={() => setConfVisible(false)}
 									/>
 								) : (
 									<Icon
 										name='visibility'
 										activeOpacity={0.2}
-										onPress={() => setIsVisible(true)}
+										onPress={() => setConfVisible(true)}
 									/>
 								)
 							}

@@ -7,6 +7,7 @@ import {
 	sendPasswordResetEmail,
 	signOut,
 	updatePassword,
+	updateEmail as authUpdateEmail,
 } from 'firebase/auth';
 import { setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { firebaseAuth, database } from '../firebase';
@@ -150,7 +151,6 @@ export function AuthProvider({ children }) {
 	async function logout() {
 		try {
 			setIsLoading(true);
-
 			setAuthUser({});
 			await signOut(firebaseAuth);
 			setIsLoggedIn(false);
@@ -163,40 +163,32 @@ export function AuthProvider({ children }) {
 
 	async function updateName({ name }) {
 		try {
-			setIsLoading(true);
 			await updateDoc(database.userID(authUser.uid), {
 				name: name,
 			});
 			setAuthUser({ ...authUser, name: name });
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-		} finally {
-			setIsLoading(false);
 		}
 	}
 
 	async function updatePass({ pass }) {
 		try {
-			setIsLoading(true);
 			await updatePassword(firebaseUser, pass);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-		} finally {
-			setIsLoading(false);
 		}
 	}
 
 	async function updateEmail({ email }) {
 		try {
-			setIsLoading(true);
+			await authUpdateEmail(firebaseUser, email);
 			await updateDoc(database.userID(authUser.uid), {
 				email: email,
 			});
 			setAuthUser({ ...authUser, email: email });
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
-		} finally {
-			setIsLoading(false);
 		}
 	}
 
