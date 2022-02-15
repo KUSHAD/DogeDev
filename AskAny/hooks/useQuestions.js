@@ -7,6 +7,7 @@ import {
 	getDoc,
 	where,
 	updateDoc,
+	limit,
 } from 'firebase/firestore';
 import { useState } from 'react';
 import Toast from 'react-native-simple-toast';
@@ -136,7 +137,8 @@ export function useQuestions() {
 		}
 		const q = query(
 			database.questionCol(),
-			where('title', '>=', _searchString)
+			where('title', '>=', _searchString),
+			limit(10)
 		);
 		onSnapshot(
 			q,

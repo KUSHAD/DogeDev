@@ -133,6 +133,11 @@ export function useNotifications() {
 			await updateDoc(database.notificationID(_id), {
 				status: environment.notificationStatus.read,
 			});
+			Toast.showWithGravity(
+				`Notification is now marked read`,
+				Toast.SHORT,
+				Toast.CENTER
+			);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {

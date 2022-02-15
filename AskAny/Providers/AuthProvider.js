@@ -218,6 +218,22 @@ export function AuthProvider({ children }) {
 		}
 	}
 
+	async function updateAvatar(uri) {
+		try {
+			await updateDoc(database.userID(authUser.uid), {
+				avatar: uri,
+			});
+			setAuthUser({ ...authUser, avatar: uri });
+			Toast.showWithGravity(
+				'Avatar updated successfully',
+				Toast.SHORT,
+				Toast.CENTER
+			);
+		} catch (error) {
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
+		}
+	}
+
 	const values = {
 		login,
 		isLoading,
@@ -230,6 +246,7 @@ export function AuthProvider({ children }) {
 		updatePass,
 		updateEmail,
 		updateName,
+		updateAvatar,
 	};
 
 	return (

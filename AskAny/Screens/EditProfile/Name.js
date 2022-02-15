@@ -17,7 +17,7 @@ export default function Name() {
 	return (
 		<Container>
 			<Card containerStyle={{ width: `80%` }}>
-				<Card.Title>Update Name</Card.Title>
+				<Card.Title h3>Update Name</Card.Title>
 				<Controller
 					control={control}
 					name='name'

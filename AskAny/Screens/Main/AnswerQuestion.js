@@ -101,7 +101,7 @@ export default function AnswerQuestion({ route, navigation }) {
 						loading={isLoading}
 						onPress={pickImageFromGallery}
 						raised
-						title='Add Attachment'
+						title={attachmentSrc ? 'Change Attachment' : 'Add Attachment'}
 						containerStyle={{ marginTop: 10, marginBottom: 10 }}
 					/>
 					{Boolean(attachmentSrc) && (
@@ -117,6 +117,7 @@ export default function AnswerQuestion({ route, navigation }) {
 								/>
 							</TouchableOpacity>
 							<Button
+								loadingProps={{ color: colors.error }}
 								loading={isLoading}
 								onPress={removeAttachment}
 								type='outline'

@@ -18,7 +18,7 @@ export default function Email() {
 	return (
 		<Container>
 			<Card containerStyle={{ width: `80%` }}>
-				<Card.Title>Update Email</Card.Title>
+				<Card.Title h3>Update Email</Card.Title>
 				<Controller
 					control={control}
 					name='email'

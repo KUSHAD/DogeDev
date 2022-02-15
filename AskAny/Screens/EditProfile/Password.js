@@ -27,7 +27,7 @@ export default function Password() {
 	return (
 		<Container>
 			<Card containerStyle={{ width: `80%` }}>
-				<Card.Title>Update Password</Card.Title>
+				<Card.Title h3>Update Password</Card.Title>
 				<Controller
 					control={control}
 					name='pass'

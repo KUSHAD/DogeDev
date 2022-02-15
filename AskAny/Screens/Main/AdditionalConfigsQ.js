@@ -115,6 +115,7 @@ export default function AdditionalConfigsQ({ route, navigation }) {
 								/>
 							</TouchableOpacity>
 							<Button
+								loadingProps={{ color: colors.error }}
 								loading={isLoading}
 								onPress={removeAttachment}
 								type='outline'
