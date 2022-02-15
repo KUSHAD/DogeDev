@@ -9,7 +9,6 @@ export default function Search({ navigation }) {
 
 	async function search(text) {
 		await searchQuestion(text);
-		console.log(searchQuestions);
 	}
 
 	return (
@@ -23,9 +22,11 @@ export default function Search({ navigation }) {
 				}}
 				platform='default'
 				inputStyle={{ backgroundColor: colors.white }}
-				inputContainerStyle={{ backgroundColor: colors.grey5 }}
+				inputContainerStyle={{ backgroundColor: colors.white }}
 				containerStyle={{
-					backgroundColor: colors.white,
+					backgroundColor: colors.primary,
+					borderBottomColor: colors.primary,
+					borderTopColor: colors.primary,
 				}}
 			/>
 			<FlatList

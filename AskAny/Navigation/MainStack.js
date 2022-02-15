@@ -12,7 +12,7 @@ import NotificationButton from '../Components/NotificationButton';
 import SearchButton from '../Components/SearchButton';
 import Notifications from '../Screens/Main/Notifications';
 import Search from '../Screens/Main/Search';
-import EditProfile from '../Screens/Main/EditProfile';
+import EditProfileTab from './EditProfileTab';
 export default function MainStack() {
 	return (
 		<Stack.Navigator initialRouteName='MainTab'>
@@ -133,7 +133,7 @@ export default function MainStack() {
 			/>
 			<Stack.Screen
 				name='EditProfile'
-				component={EditProfile}
+				component={EditProfileTab}
 				options={{
 					headerTitle: 'Edit Profile',
 					headerStyle: {

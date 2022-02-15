@@ -141,7 +141,7 @@ export function AuthProvider({ children }) {
 				}
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 				setAuthLoading(false);
 			}
 		);
@@ -163,32 +163,58 @@ export function AuthProvider({ children }) {
 
 	async function updateName({ name }) {
 		try {
+			if (name === authUser.name) return;
+			setIsLoading(true);
 			await updateDoc(database.userID(authUser.uid), {
 				name: name,
 			});
 			setAuthUser({ ...authUser, name: name });
+			Toast.showWithGravity(
+				'Name updated successfully',
+				Toast.LONG,
+				Toast.CENTER
+			);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
 	async function updatePass({ pass }) {
 		try {
+			setIsLoading(true);
 			await updatePassword(firebaseUser, pass);
+			Toast.showWithGravity(
+				'Password updated successfully',
+				Toast.LONG,
+				Toast.CENTER
+			);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
 		}
 	}
 
 	async function updateEmail({ email }) {
 		try {
+			if (email === authUser.email) return;
+			setIsLoading(true);
 			await authUpdateEmail(firebaseUser, email);
 			await updateDoc(database.userID(authUser.uid), {
 				email: email,
 			});
 			setAuthUser({ ...authUser, email: email });
+			Toast.showWithGravity(
+				'Email updated successfully',
+				Toast.LONG,
+				Toast.CENTER
+			);
 		} catch (error) {
 			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+		} finally {
+			setIsLoading(false);
 		}
 	}
 

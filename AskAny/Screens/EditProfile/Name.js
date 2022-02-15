@@ -1,0 +1,46 @@
+import { Card, Input, Icon, Button } from 'react-native-elements';
+import Container from '../../Components/Container';
+import { useAuthProvider } from '../../Providers/AuthProvider';
+import { useForm, Controller } from 'react-hook-form';
+export default function Name() {
+	const { authUser, updateName, isLoading } = useAuthProvider();
+	const { control, handleSubmit } = useForm({
+		mode: 'all',
+		defaultValues: {
+			name: authUser.name,
+		},
+	});
+	return (
+		<Container>
+			<Card containerStyle={{ width: `80%` }}>
+				<Card.Title>Update Name</Card.Title>
+				<Controller
+					control={control}
+					name='name'
+					rules={{
+						required: 'Name is required',
+					}}
+					render={({
+						field: { onChange, onBlur, value },
+						formState: { errors },
+					}) => (
+						<Input
+							onBlur={onBlur}
+							onChangeText={onChange}
+							value={value}
+							label='Name'
+							leftIcon={<Icon name='person' />}
+							errorMessage={errors?.name?.message}
+						/>
+					)}
+				/>
+				<Button
+					title='Update Name'
+					raised
+					loading={isLoading}
+					onPress={handleSubmit(updateName)}
+				/>
+			</Card>
+		</Container>
+	);
+}
