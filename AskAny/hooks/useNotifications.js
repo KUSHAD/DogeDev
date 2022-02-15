@@ -29,7 +29,7 @@ export function useNotifications() {
 		if (finalStatus !== 'granted') {
 			Toast.showWithGravity(
 				'Failed to get push token for push notification!',
-				Toast.LONG,
+				Toast.SHORT,
 				Toast.CENTER
 			);
 			return;
@@ -66,7 +66,7 @@ export function useNotifications() {
 				body: JSON.stringify(body),
 			});
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -81,7 +81,7 @@ export function useNotifications() {
 				qID,
 			});
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -98,7 +98,7 @@ export function useNotifications() {
 				setUnreadNotifsNum(docs.length);
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 			}
 		);
 	}
@@ -122,7 +122,7 @@ export function useNotifications() {
 				setNotifs(_docs);
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 			}
 		);
 	}
@@ -134,7 +134,7 @@ export function useNotifications() {
 				status: environment.notificationStatus.read,
 			});
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}

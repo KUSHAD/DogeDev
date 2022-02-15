@@ -5,12 +5,16 @@ import { useForm, Controller } from 'react-hook-form';
 import { environment } from '../../environment';
 export default function Email() {
 	const { authUser, updateEmail, isLoading } = useAuthProvider();
-	const { control, handleSubmit } = useForm({
+	const { control, handleSubmit, reset } = useForm({
 		mode: 'all',
 		defaultValues: {
 			email: authUser.email,
 		},
 	});
+	async function onSubmit(data) {
+		await updateEmail(data);
+		reset();
+	}
 	return (
 		<Container>
 			<Card containerStyle={{ width: `80%` }}>
@@ -30,6 +34,7 @@ export default function Email() {
 						formState: { errors },
 					}) => (
 						<Input
+							autoComplete='email'
 							onBlur={onBlur}
 							onChangeText={onChange}
 							value={value}
@@ -43,7 +48,7 @@ export default function Email() {
 					title='Update Email'
 					raised
 					loading={isLoading}
-					onPress={handleSubmit(updateEmail)}
+					onPress={handleSubmit(onSubmit)}
 				/>
 			</Card>
 		</Container>

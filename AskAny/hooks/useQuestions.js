@@ -42,8 +42,9 @@ export function useQuestions() {
 				createdAt: serverTimestamp(),
 				status: environment.questionStats.unanswered,
 			});
+			Toast.showWithGravity(`Added your question`, Toast.SHORT, Toast.CENTER);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -70,7 +71,7 @@ export function useQuestions() {
 					});
 				setQuestions(_questions);
 			},
-			error => Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER)
+			error => Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER)
 		);
 	}
 
@@ -90,7 +91,7 @@ export function useQuestions() {
 				subject: _question.data().subject,
 			});
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -100,7 +101,7 @@ export function useQuestions() {
 				status: environment.questionStats.answered,
 			});
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -123,7 +124,7 @@ export function useQuestions() {
 				setMyQuestions(_myQuestions);
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 			}
 		);
 	}
@@ -149,7 +150,7 @@ export function useQuestions() {
 				setSearchQuestions(_docs);
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 				console.log(error);
 			}
 		);

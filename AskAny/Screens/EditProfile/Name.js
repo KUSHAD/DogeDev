@@ -4,12 +4,16 @@ import { useAuthProvider } from '../../Providers/AuthProvider';
 import { useForm, Controller } from 'react-hook-form';
 export default function Name() {
 	const { authUser, updateName, isLoading } = useAuthProvider();
-	const { control, handleSubmit } = useForm({
+	const { control, handleSubmit, reset } = useForm({
 		mode: 'all',
 		defaultValues: {
 			name: authUser.name,
 		},
 	});
+	async function onSubmit(data) {
+		await updateName(data);
+		reset();
+	}
 	return (
 		<Container>
 			<Card containerStyle={{ width: `80%` }}>
@@ -25,6 +29,7 @@ export default function Name() {
 						formState: { errors },
 					}) => (
 						<Input
+							autoComplete='name'
 							onBlur={onBlur}
 							onChangeText={onChange}
 							value={value}
@@ -38,7 +43,7 @@ export default function Name() {
 					title='Update Name'
 					raised
 					loading={isLoading}
-					onPress={handleSubmit(updateName)}
+					onPress={handleSubmit(onSubmit)}
 				/>
 			</Card>
 		</Container>

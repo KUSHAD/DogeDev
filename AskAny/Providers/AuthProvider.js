@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
 			});
 			setIsLoggedIn(true);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
 			});
 			setIsLoggedIn(true);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -93,11 +93,11 @@ export function AuthProvider({ children }) {
 			await sendPasswordResetEmail(firebaseAuth, email);
 			Toast.showWithGravity(
 				`Password reset email sent pls check your inbox`,
-				Toast.LONG,
+				Toast.SHORT,
 				Toast.CENTER
 			);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -112,7 +112,7 @@ export function AuthProvider({ children }) {
 			setAuthUser({ ...authUser, favSubs: subs });
 			navigation.navigate('MainTab');
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -155,7 +155,7 @@ export function AuthProvider({ children }) {
 			await signOut(firebaseAuth);
 			setIsLoggedIn(false);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -171,11 +171,11 @@ export function AuthProvider({ children }) {
 			setAuthUser({ ...authUser, name: name });
 			Toast.showWithGravity(
 				'Name updated successfully',
-				Toast.LONG,
+				Toast.SHORT,
 				Toast.CENTER
 			);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -187,11 +187,11 @@ export function AuthProvider({ children }) {
 			await updatePassword(firebaseUser, pass);
 			Toast.showWithGravity(
 				'Password updated successfully',
-				Toast.LONG,
+				Toast.SHORT,
 				Toast.CENTER
 			);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
@@ -208,11 +208,11 @@ export function AuthProvider({ children }) {
 			setAuthUser({ ...authUser, email: email });
 			Toast.showWithGravity(
 				'Email updated successfully',
-				Toast.LONG,
+				Toast.SHORT,
 				Toast.CENTER
 			);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}

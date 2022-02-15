@@ -21,8 +21,9 @@ export function useAnswers() {
 				questionID,
 				createdAt: serverTimestamp(),
 			});
+			Toast.showWithGravity(`Added your answer`, Toast.SHORT, Toast.CENTER);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 
@@ -44,7 +45,7 @@ export function useAnswers() {
 				setAnswers(_answers);
 			},
 			error => {
-				Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+				Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 			}
 		);
 	}

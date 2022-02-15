@@ -20,7 +20,7 @@ export function useAttachments() {
 				data.base64 ? `data:image/jpg;base64,${data.base64}` : ''
 			);
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		}
 	}
 

@@ -60,7 +60,7 @@ export default function AnswerQuestion({ route, navigation }) {
 			);
 			navigation.pop();
 		} catch (error) {
-			Toast.showWithGravity(error.message, Toast.LONG, Toast.CENTER);
+			Toast.showWithGravity(error.message, Toast.SHORT, Toast.CENTER);
 		} finally {
 			setIsLoading(false);
 		}
