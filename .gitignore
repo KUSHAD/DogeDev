@@ -72,8 +72,11 @@ build/
 client_creds.json
 
 
-#expo
+# expo
 .expo/
 
-#environment
+# environment
 environment.js
+
+# nextjs
+.next/

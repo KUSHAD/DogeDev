@@ -8,7 +8,9 @@
 		"admin:deploy": "cd admin && npm run deploy",
 		"restaurant:dev": "cd restaurant && npm run dev",
 		"restaurant:build": "cd restaurant && npm run build",
-		"restaurant:deploy": "cd restaurant && npm run deploy"
+		"restaurant:deploy": "cd restaurant && npm run deploy",
+		"askAny:dev": "cd AskAny && npm start",
+		"social:dev": "cd social && npm run dev"
 	},
 	"repository": {
 		"type": "git",
