@@ -70,7 +70,7 @@ build/
 
 # Service Account Credentials
 client_creds.json
-
+client_secret_*
 
 # expo
 .expo/
