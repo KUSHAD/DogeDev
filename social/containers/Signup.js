@@ -12,7 +12,7 @@ import {
 } from '../components/FormControls';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { signup } from '../redux/actions/auth.actions';
+import { signup, verifyOTP } from '../redux/actions/auth.actions';
 
 const { Step } = Steps;
 const { Countdown } = Statistic;
@@ -48,9 +48,7 @@ function FormCont({ setCurrent }) {
 	const dispatch = useDispatch();
 	const formRef = useForm();
 	function onSubmit(data) {
-		dispatch(signup(data)).then(() => {
-			setCurrent(1);
-		});
+		dispatch(signup(data, setCurrent));
 	}
 	return (
 		<Form
@@ -106,7 +104,7 @@ function VerifyCont({ setCurrent }) {
 	}
 
 	function resend() {
-		dispatch(signup(auth)).then(() => {
+		dispatch(signup(auth), setCurrent).then(() => {
 			const _minutesToAdd = 10;
 			const _currentDate = new Date();
 			const _futureDate = new Date(
@@ -117,8 +115,13 @@ function VerifyCont({ setCurrent }) {
 		});
 	}
 
+	function onSubmit({ otp }) {
+		dispatch(verifyOTP({ otp, OTPToken: auth.OTPToken }, setCurrent));
+	}
+
 	return (
 		<Form
+			onFinish={onSubmit}
 			name='basic'
 			labelCol={{ span: 8 }}
 			wrapperCol={{ span: 16 }}
