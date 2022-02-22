@@ -19,7 +19,7 @@ export default function handler(req, res) {
 async function signup(req, res) {
 	try {
 		const {
-			body: { email, password, name, username },
+			body: { email, password, name, username, remember },
 		} = req;
 		await connectDB();
 		const findEmail = await Users.findOne({ email });
@@ -43,6 +43,7 @@ async function signup(req, res) {
 			name,
 			username,
 			otp,
+			remember,
 		});
 
 		await sendMail(
@@ -63,6 +64,7 @@ async function signup(req, res) {
 				username,
 				password,
 				name,
+				remember,
 			},
 		});
 	} catch (error) {

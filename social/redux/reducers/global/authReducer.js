@@ -1,4 +1,4 @@
-import { GLOBAL_TYPES } from '../../utils/reduxTypes';
+import { GLOBAL_TYPES } from '../../../utils/reduxTypes';
 
 const _state = {};
 

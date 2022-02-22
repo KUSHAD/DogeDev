@@ -1,19 +1,23 @@
 import Centered from '../components/Centered';
 import Head from 'next/head';
-import { Button, Card, Form, Steps } from 'antd';
+import { Button, Card, Form, Steps, Typography, Statistic } from 'antd';
 import {
 	ConfPassInput,
 	EmailInput,
 	NameInput,
 	OTPInput,
 	PassInput,
+	RememberMeCheckBox,
 	UsernameInput,
 } from '../components/FormControls';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { signup } from '../redux/actions/auth.actions';
 
 const { Step } = Steps;
+const { Countdown } = Statistic;
 
-const steps = ['Signup', 'Verify', 'Save Info'];
+const steps = ['Signup', 'Verify Email'];
 
 export default function Signup() {
 	const [current, setCurrent] = useState(0);
@@ -32,7 +36,6 @@ export default function Signup() {
 				<Card>
 					{current === 0 && <FormCont setCurrent={setCurrent} />}
 					{current === 1 && <VerifyCont setCurrent={setCurrent} />}
-					{current === 2 && <SaveInfo setCurrent={setCurrent} />}
 				</Card>
 			</Centered>
 		</>
@@ -41,10 +44,13 @@ export default function Signup() {
 
 function FormCont({ setCurrent }) {
 	const { useForm } = Form;
+	const { loading, auth } = useSelector(state => state);
+	const dispatch = useDispatch();
 	const formRef = useForm();
-	function onSubmit(values) {
-		console.log(values);
-		setCurrent(1);
+	function onSubmit(data) {
+		dispatch(signup(data)).then(() => {
+			setCurrent(1);
+		});
 	}
 	return (
 		<Form
@@ -53,21 +59,64 @@ function FormCont({ setCurrent }) {
 			name='basic'
 			labelCol={{ span: 8 }}
 			wrapperCol={{ span: 16 }}
-			initialValues={{ name: '', email: '', password: '', confPass: '' }}
+			initialValues={{
+				name: auth.name || '',
+				email: auth.email || '',
+				password: auth.password || '',
+				confPass: auth.password || '',
+				remember: auth.remember || true,
+				username: auth.username || '',
+			}}
 		>
 			<NameInput />
 			<EmailInput />
 			<UsernameInput />
 			<PassInput />
 			<ConfPassInput _ref={formRef} />
-			<Button type='primary' className='my-2 w-full' htmlType='submit'>
+			<RememberMeCheckBox />
+			<Button
+				type='primary'
+				loading={loading}
+				className='my-2 w-full'
+				htmlType='submit'
+			>
 				Signup
 			</Button>
+			{auth.OTPToken && (
+				<Button className='w-full' onClick={() => setCurrent(1)}>
+					Cancel
+				</Button>
+			)}
 		</Form>
 	);
 }
 
+const minutesToAdd = 10;
+const currentDate = new Date();
+const futureDate = new Date(currentDate.getTime() + minutesToAdd * 60000);
+
 function VerifyCont({ setCurrent }) {
+	const [counter, setCounter] = useState(futureDate);
+
+	const { loading, auth } = useSelector(state => state);
+	const dispatch = useDispatch();
+
+	function goBack() {
+		setCurrent(0);
+	}
+
+	function resend() {
+		dispatch(signup(auth)).then(() => {
+			const _minutesToAdd = 10;
+			const _currentDate = new Date();
+			const _futureDate = new Date(
+				_currentDate.getTime() + _minutesToAdd * 60000
+			);
+
+			setCounter(_futureDate);
+		});
+	}
+
 	return (
 		<Form
 			name='basic'
@@ -75,14 +124,28 @@ function VerifyCont({ setCurrent }) {
 			wrapperCol={{ span: 16 }}
 			initialValues={{ otp: '' }}
 		>
+			<Typography>Enter the OTP received in your inbox</Typography>
 			<OTPInput />
-			<Button type='primary' className='my-2 w-full' htmlType='submit'>
-				Signup
+			<Countdown value={counter} className='text-center text-sm' />
+			<Button
+				loading={loading}
+				type='primary'
+				className='my-2 w-full'
+				htmlType='submit'
+			>
+				Verify
+			</Button>
+			<Button onClick={resend} loading={loading} className='w-full'>
+				Resend Email
+			</Button>
+			<Button
+				onClick={goBack}
+				className=' my-2 w-full'
+				loading={loading}
+				danger
+			>
+				Change Credentials
 			</Button>
 		</Form>
 	);
-}
-
-function SaveInfo() {
-	return 'UwU';
 }

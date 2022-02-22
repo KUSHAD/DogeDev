@@ -1,4 +1,4 @@
-import { Input, Form } from 'antd';
+import { Input, Form, Checkbox } from 'antd';
 export function NameInput() {
 	return (
 		<Form.Item
@@ -106,6 +106,21 @@ export function ConfPassInput({ _ref }) {
 			]}
 		>
 			<Input.Password />
+		</Form.Item>
+	);
+}
+
+export function RememberMeCheckBox() {
+	return (
+		<Form.Item
+			name='remember'
+			valuePropName='checked'
+			wrapperCol={{
+				offset: 8,
+				span: 16,
+			}}
+		>
+			<Checkbox>Remember Me</Checkbox>
 		</Form.Item>
 	);
 }
