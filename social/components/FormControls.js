@@ -142,6 +142,10 @@ export function OTPInput() {
 							return Promise.reject(`Must be a numerical value`);
 					},
 				},
+				{
+					whitespace: true,
+					message: 'No whitespace to be provided',
+				},
 			]}
 		>
 			<Input />

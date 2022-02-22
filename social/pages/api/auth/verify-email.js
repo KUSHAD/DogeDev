@@ -7,7 +7,7 @@ import {
 } from '../../../utils/tokens/generate';
 
 import bcrypt from 'bcrypt';
-import Cookies from 'cookies';
+import { setCookies } from 'cookies-next';
 import { environment } from '../../../environment';
 
 export default function handler(req, res) {
@@ -46,8 +46,10 @@ async function verifyEmail(req, res) {
 				message: 'Incorrect OTP. Double check your OTP and resubmit',
 			});
 
-		const findEmail = await Users.findOne({ email });
-		const findUsername = await Users.findOne({ username });
+		const findEmail = await Users.findOne({ email: email.toLowerCase() });
+		const findUsername = await Users.findOne({
+			username: username.toLowerCase(),
+		});
 
 		if (findEmail)
 			return res.status(400).json({
@@ -71,18 +73,19 @@ async function verifyEmail(req, res) {
 		const accessToken = await generateAccessToken({ id: newUser._id });
 
 		if (remember) {
-			const cookies = new Cookies(req, res, environment.tokenKey);
 			const refreshToken = await generateRefreshToken({ id: newUser._id });
-			await cookies.set('refreshToken', refreshToken, {
+			setCookies('refreshToken', refreshToken, {
+				req,
+				res,
 				httpOnly: true,
 				path: '/api/refresh-token',
-				maxAge: 31556952000,
+				maxAge: 31536000,
 			});
 		}
 
 		await newUser.save();
 
-		res.status(200).json({
+		return res.status(200).json({
 			message: 'Signed in succesfully !!',
 			auth: {
 				token: accessToken,

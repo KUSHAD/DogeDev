@@ -13,6 +13,7 @@ import {
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signup, verifyOTP } from '../redux/actions/auth.actions';
+import Link from 'next/link';
 
 const { Step } = Steps;
 const { Countdown } = Statistic;
@@ -34,6 +35,9 @@ export default function Signup() {
 					))}
 				</Steps>
 				<Card>
+					<Typography className='text-2xl m-2 text-center underline'>
+						Signup
+					</Typography>
 					{current === 0 && <FormCont setCurrent={setCurrent} />}
 					{current === 1 && <VerifyCont setCurrent={setCurrent} />}
 				</Card>
@@ -78,13 +82,19 @@ function FormCont({ setCurrent }) {
 				className='my-2 w-full'
 				htmlType='submit'
 			>
-				Signup
+				{auth.OTPToken ? 'Update Credentials' : 'Signup'}
 			</Button>
 			{auth.OTPToken && (
 				<Button className='w-full' onClick={() => setCurrent(1)}>
 					Cancel
 				</Button>
 			)}
+			<Typography>
+				Already have an account ?
+				<Link href='/login'>
+					<Button type='link'>Login</Button>
+				</Link>
+			</Typography>
 		</Form>
 	);
 }

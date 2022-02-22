@@ -22,8 +22,10 @@ async function signup(req, res) {
 			body: { email, password, name, username, remember },
 		} = req;
 		await connectDB();
-		const findEmail = await Users.findOne({ email });
-		const findUsername = await Users.findOne({ username });
+		const findEmail = await Users.findOne({ email: email.toLowerCase() });
+		const findUsername = await Users.findOne({
+			username: username.toLowerCase(),
+		});
 
 		if (findEmail)
 			return res.status(400).json({
@@ -56,7 +58,7 @@ async function signup(req, res) {
 		`
 		);
 
-		res.status(200).json({
+		return res.status(200).json({
 			message: 'Please provide the OTP sent to your inbox,valid for 10 mins',
 			user: {
 				OTPToken: otpToken,
