@@ -9,12 +9,14 @@ import {
 	RememberMeCheckBox,
 } from '../components/FormControls';
 import { login } from '../redux/actions/auth.actions';
+import { useRouter } from 'next/router';
 
 export default function Login() {
 	const { loading } = useSelector(state => state);
 	const dispatch = useDispatch();
+	const router = useRouter();
 	function onSubmit(data) {
-		dispatch(login(data));
+		dispatch(login(data, router));
 	}
 	return (
 		<>

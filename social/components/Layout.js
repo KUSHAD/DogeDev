@@ -1,6 +1,7 @@
 import { notification } from 'antd';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { getAccessToken } from '../redux/actions/auth.actions';
 import { GLOBAL_TYPES } from '../utils/reduxTypes';
 export default function Layout({ children }) {
 	const { alert } = useSelector(state => state);
@@ -45,7 +46,11 @@ export default function Layout({ children }) {
 				},
 			});
 		}
-	}, [alert]);
+	}, [alert, dispatch]);
+
+	useEffect(() => {
+		dispatch(getAccessToken());
+	}, [dispatch]);
 
 	return (
 		<div className='w-full min-h-screen bg-gray-200'>

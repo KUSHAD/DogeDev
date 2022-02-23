@@ -32,7 +32,7 @@ export function signup(data, setCurrent) {
 	};
 }
 
-export function verifyOTP(data, setCurrent) {
+export function verifyOTP(data, router) {
 	return async dispatch => {
 		try {
 			dispatch({
@@ -48,7 +48,7 @@ export function verifyOTP(data, setCurrent) {
 			});
 
 			dispatch({ type: GLOBAL_TYPES.auth, payload: res.data.auth });
-			setCurrent(0);
+			router.push('/', '/');
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,
@@ -63,7 +63,7 @@ export function verifyOTP(data, setCurrent) {
 	};
 }
 
-export function login(data) {
+export function login(data, router) {
 	return async dispatch => {
 		try {
 			dispatch({
@@ -79,6 +79,7 @@ export function login(data) {
 			});
 
 			dispatch({ type: GLOBAL_TYPES.auth, payload: res.data.auth });
+			router.push('/', '/');
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,
@@ -87,6 +88,29 @@ export function login(data) {
 		} finally {
 			dispatch({
 				type: GLOBAL_TYPES.loading,
+				payload: false,
+			});
+		}
+	};
+}
+
+export function getAccessToken() {
+	return async dispatch => {
+		try {
+			const res = await postAPI('refresh-token');
+
+			dispatch({
+				type: GLOBAL_TYPES.auth,
+				payload: res.data.auth,
+			});
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
+			});
+		} finally {
+			dispatch({
+				type: GLOBAL_TYPES.authLoading,
 				payload: false,
 			});
 		}

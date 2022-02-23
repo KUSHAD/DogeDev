@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signup, verifyOTP } from '../redux/actions/auth.actions';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const { Step } = Steps;
 const { Countdown } = Statistic;
@@ -108,6 +109,7 @@ function VerifyCont({ setCurrent }) {
 
 	const { loading, auth } = useSelector(state => state);
 	const dispatch = useDispatch();
+	const router = useRouter();
 
 	function goBack() {
 		setCurrent(0);
@@ -126,7 +128,7 @@ function VerifyCont({ setCurrent }) {
 	}
 
 	function onSubmit({ otp }) {
-		dispatch(verifyOTP({ otp, OTPToken: auth.OTPToken }, setCurrent));
+		dispatch(verifyOTP({ otp, OTPToken: auth.OTPToken }, router));
 	}
 
 	return (
