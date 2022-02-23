@@ -8,7 +8,6 @@ import {
 
 import bcrypt from 'bcrypt';
 import { setCookies } from 'cookies-next';
-import { environment } from '../../../environment';
 
 export default function handler(req, res) {
 	const { method } = req;

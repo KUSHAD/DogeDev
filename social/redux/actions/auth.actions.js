@@ -62,3 +62,33 @@ export function verifyOTP(data, setCurrent) {
 		}
 	};
 }
+
+export function login(data) {
+	return async dispatch => {
+		try {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
+				payload: true,
+			});
+
+			const res = await postAPI('auth/login', data);
+
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { success: res.data.message },
+			});
+
+			dispatch({ type: GLOBAL_TYPES.auth, payload: res.data.auth });
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
+			});
+		} finally {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
+				payload: false,
+			});
+		}
+	};
+}

@@ -152,3 +152,20 @@ export function OTPInput() {
 		</Form.Item>
 	);
 }
+
+export function EmailUserNameInput() {
+	return (
+		<Form.Item
+			label='Email/username'
+			name='identity'
+			rules={[
+				{
+					required: true,
+					message: 'Required',
+				},
+			]}
+		>
+			<Input />
+		</Form.Item>
+	);
+}
