@@ -19,6 +19,12 @@ export default function handler(req, res) {
 async function getAccessToken(req, res) {
 	try {
 		await connectDB();
+
+		if (!req.cookies.refreshToken)
+			return res.status(400).json({
+				message: 'No auth token found',
+			});
+
 		const { id } = await decodeRefreshToken(req.cookies.refreshToken);
 
 		const user = await Users.findOne({ _id: id });

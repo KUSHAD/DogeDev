@@ -1,5 +1,5 @@
 import { GLOBAL_TYPES } from '../../utils/reduxTypes';
-import { postAPI } from '../../utils/fetchData';
+import { deleteAPI, postAPI } from '../../utils/fetchData';
 
 export function signup(data, setCurrent) {
 	return async dispatch => {
@@ -111,6 +111,32 @@ export function getAccessToken() {
 		} finally {
 			dispatch({
 				type: GLOBAL_TYPES.authLoading,
+				payload: false,
+			});
+		}
+	};
+}
+
+export function logout() {
+	return async dispatch => {
+		try {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
+				payload: true,
+			});
+			await deleteAPI('auth/logout');
+			dispatch({
+				type: GLOBAL_TYPES.auth,
+				payload: {},
+			});
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
+			});
+		} finally {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
 				payload: false,
 			});
 		}
