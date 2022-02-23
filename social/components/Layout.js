@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAccessToken } from '../redux/actions/auth.actions';
 import { GLOBAL_TYPES } from '../utils/reduxTypes';
+import NavBar from './Header/NavBar';
 export default function Layout({ children }) {
-	const { alert } = useSelector(state => state);
+	const { alert, auth } = useSelector(state => state);
 
 	const dispatch = useDispatch();
 
@@ -54,7 +55,10 @@ export default function Layout({ children }) {
 
 	return (
 		<div className='w-full min-h-screen bg-gray-200'>
-			<div className='max-w-5xl w-full min-h-screen m-auto'>{children}</div>
+			<div className='max-w-5xl w-full min-h-screen m-auto'>
+				{auth.token && <NavBar />}
+				{children}
+			</div>
 		</div>
 	);
 }

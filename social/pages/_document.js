@@ -1,6 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 
-class MyDocument extends Document {
+export default class AppDocument extends Document {
 	render() {
 		return (
 			<Html lang='en'>
@@ -10,6 +10,10 @@ class MyDocument extends Document {
 						content='A social media app created by DogeDev(Kushad Chakraborty)'
 					/>
 					<link rel='icon' href='/favicon.ico' />
+					<link
+						rel='stylesheet'
+						href='https://fonts.googleapis.com/icon?family=Material+Icons'
+					/>
 				</Head>
 				<body>
 					<Main />
@@ -19,5 +23,3 @@ class MyDocument extends Document {
 		);
 	}
 }
-
-export default MyDocument;
