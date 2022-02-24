@@ -18,7 +18,7 @@ export default function NavItems() {
 	const dispatch = useDispatch();
 
 	function onLogout() {
-		dispatch(logout());
+		dispatch(logout(auth.token));
 	}
 
 	function isActive(pn) {
@@ -44,7 +44,9 @@ export default function NavItems() {
 				arrow
 				overlay={() => (
 					<Menu className='w-24'>
-						<Menu.Item key={0}>Profile</Menu.Item>
+						<Menu.Item key={0}>
+							<Link href={`/profile/${auth.user._id}`}>Profile</Link>
+						</Menu.Item>
 						<Menu.Item key={1} danger onClick={onLogout}>
 							Logout
 						</Menu.Item>

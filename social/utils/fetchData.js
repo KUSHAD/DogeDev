@@ -17,3 +17,12 @@ export async function deleteAPI(_url, _token) {
 	});
 	return _res;
 }
+
+export async function getAPI(_url, _token) {
+	const _res = await axios.get(`/api/${_url}`, {
+		headers: {
+			Authorization: _token,
+		},
+	});
+	return _res;
+}

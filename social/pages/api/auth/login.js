@@ -35,7 +35,10 @@ async function login(req, res) {
 					username: identity,
 				},
 			],
-		});
+		}).populate(
+			'followers following',
+			'avatar username name followers following'
+		);
 
 		if (!user)
 			return res.status(400).json({

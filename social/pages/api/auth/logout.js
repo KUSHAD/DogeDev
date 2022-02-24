@@ -1,4 +1,5 @@
 import { removeCookies } from 'cookies-next';
+import authMiddleware from '../../../middlewares/auth';
 export default function handler(req, res) {
 	const { method } = req;
 	switch (method) {
@@ -14,6 +15,7 @@ export default function handler(req, res) {
 
 async function logout(req, res) {
 	try {
+		await authMiddleware(req, res);
 		await removeCookies('refreshToken', {
 			req,
 			res,

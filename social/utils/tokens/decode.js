@@ -8,3 +8,7 @@ export function decodeOTPToken(token) {
 export function decodeRefreshToken(token) {
 	return jwt.decode(token, environment.jwtSecrets.refresh);
 }
+
+export function decodeAccessToken(token) {
+	return jwt.decode(token, environment.jwtSecrets.access);
+}

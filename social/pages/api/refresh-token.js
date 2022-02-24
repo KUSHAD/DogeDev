@@ -20,24 +20,20 @@ async function getAccessToken(req, res) {
 	try {
 		await connectDB();
 
-		if (!req.cookies.refreshToken)
-			return res.status(400).json({
-				message: 'No auth token found',
-			});
+		if (!req.cookies.refreshToken) return res.status(400).end();
 
 		const { id } = await decodeRefreshToken(req.cookies.refreshToken);
 
-		const user = await Users.findOne({ _id: id });
+		const user = await Users.findOne({ _id: id }).populate(
+			'followers following',
+			'avatar username name followers following'
+		);
 
-		if (!user)
-			return res.status(400).json({
-				message: 'Token corrupted. Login again !!!',
-			});
+		if (!user) return res.status(400).end();
 
 		const accessToken = await generateAccessToken({ id: user._id });
 
 		return res.status(200).json({
-			message: 'Logged in succesfully !!',
 			auth: {
 				token: accessToken,
 				user: {
@@ -48,7 +44,7 @@ async function getAccessToken(req, res) {
 		});
 	} catch (error) {
 		return res.status(500).json({
-			message: error.message,
+			message: error.message.replace('jwt', 'Token'),
 		});
 	}
 }

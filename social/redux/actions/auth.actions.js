@@ -117,14 +117,14 @@ export function getAccessToken() {
 	};
 }
 
-export function logout() {
+export function logout(token) {
 	return async dispatch => {
 		try {
 			dispatch({
 				type: GLOBAL_TYPES.loading,
 				payload: true,
 			});
-			await deleteAPI('auth/logout');
+			await deleteAPI('auth/logout', token);
 			dispatch({
 				type: GLOBAL_TYPES.auth,
 				payload: {},
