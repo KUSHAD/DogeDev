@@ -1,4 +1,4 @@
-import { GLOBAL_TYPES } from '../../../utils/reduxTypes';
+import { GLOBAL_TYPES } from '../../utils/reduxTypes';
 
 function authLoadingReducer(state = true, { type, payload }) {
 	switch (type) {

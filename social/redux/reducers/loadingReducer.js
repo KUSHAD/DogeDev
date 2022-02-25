@@ -1,4 +1,4 @@
-import { GLOBAL_TYPES } from '../../../utils/reduxTypes';
+import { GLOBAL_TYPES } from '../../utils/reduxTypes';
 
 function loadingReducer(state = false, { type, payload }) {
 	switch (type) {

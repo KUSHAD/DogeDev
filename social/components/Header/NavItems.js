@@ -1,10 +1,9 @@
 import SmallAvatar from '../Avatar/Small';
 import { useDispatch, useSelector } from 'react-redux';
-import { Menu, Dropdown } from 'antd';
+import { Menu, Dropdown, Modal } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import { Modal } from 'antd';
 import { logout } from '../../redux/actions/auth.actions';
 const { confirm } = Modal;
 export default function NavItems() {
@@ -13,7 +12,7 @@ export default function NavItems() {
 		{ icon: 'near_me', path: '/chats' },
 		{ icon: 'explore', path: '/explore' },
 	];
-	const { auth } = useSelector(state => state);
+	const { auth, loading } = useSelector(state => state);
 	const { pathname } = useRouter();
 	const dispatch = useDispatch();
 
@@ -24,6 +23,28 @@ export default function NavItems() {
 	function isActive(pn) {
 		if (pn === pathname) return 'opacity-100';
 		return 'opacity-50';
+	}
+
+	function showModal() {
+		confirm({
+			centered: true,
+			title: 'Confirm',
+			content: 'Are you sure you wanna logout ?',
+			okButtonProps: {
+				type: 'primary',
+				danger: true,
+				loading: loading,
+			},
+			okText: 'Yes',
+			cancelText: 'No',
+			cancelButtonProps: {
+				type: 'primary',
+				loading: loading,
+			},
+			onOk() {
+				onLogout();
+			},
+		});
 	}
 
 	return (
@@ -47,7 +68,7 @@ export default function NavItems() {
 						<Menu.Item key={0}>
 							<Link href={`/profile/${auth.user._id}`}>Profile</Link>
 						</Menu.Item>
-						<Menu.Item key={1} danger onClick={onLogout}>
+						<Menu.Item key={1} danger onClick={showModal}>
 							Logout
 						</Menu.Item>
 					</Menu>

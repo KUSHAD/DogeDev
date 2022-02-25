@@ -11,8 +11,6 @@ const store = createStore(
 	composeWithDevTools(applyMiddleware(thunk))
 );
 
-function DataProvider({ children }) {
+export default function DataProvider({ children }) {
 	return <Provider store={store}>{children}</Provider>;
 }
-
-export default DataProvider;
