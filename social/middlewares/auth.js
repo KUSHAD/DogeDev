@@ -13,7 +13,7 @@ export default async function authMiddleware(req, res) {
 
 		const user = await Users.findOne({ _id: decoded.id });
 
-		return user;
+		return { _id: user._id, name: user.name, username: user.username };
 	} catch (error) {
 		res.status(500).json({ message: error.message });
 	}

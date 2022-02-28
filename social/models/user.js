@@ -30,7 +30,6 @@ const UserSchema = new mongoose.Schema(
 			type: String,
 			default: environment.defaultAvatar,
 		},
-		mobile: { type: String, default: '' },
 		story: {
 			type: String,
 			default: '',

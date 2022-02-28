@@ -13,7 +13,7 @@ export function NameInput() {
 				{ whitespace: true, message: 'Remove whitespaces' },
 			]}
 		>
-			<Input />
+			<Input showCount maxLength={25} />
 		</Form.Item>
 	);
 }
@@ -54,9 +54,10 @@ export function UsernameInput() {
 					pattern: /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/i,
 					message: 'Enter valid username',
 				},
+				{ max: 25, message: 'Maximum 25 characters' },
 			]}
 		>
-			<Input />
+			<Input showCount maxLength={25} />
 		</Form.Item>
 	);
 }
@@ -149,6 +150,18 @@ export function OTPInput() {
 			]}
 		>
 			<Input />
+		</Form.Item>
+	);
+}
+
+export function StoryInput() {
+	return (
+		<Form.Item
+			label='Bio'
+			name='story'
+			rules={[{ max: 200, message: 'Maximum 200 characters' }]}
+		>
+			<Input.TextArea showCount maxLength={200} />
 		</Form.Item>
 	);
 }
