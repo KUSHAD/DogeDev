@@ -6,7 +6,7 @@ export default function handler(req, res) {
 	const { method } = req;
 	switch (method) {
 		case 'PATCH':
-			updateDefaultProfile(req, res);
+			updateAvatar(req, res);
 			break;
 		default:
 			res.setHeader('Allow', ['PATCH']);
@@ -15,35 +15,23 @@ export default function handler(req, res) {
 	}
 }
 
-async function updateDefaultProfile(req, res) {
+async function updateAvatar(req, res) {
 	try {
 		const {
-			body: { story, username, name },
+			body: { avatar },
 		} = req;
 		await connectDB();
 		const authUser = await authMiddleware(req, res);
 
-		const findUsername = await Users.find({
-			username: username.toLowerCase(),
-			_id: { $ne: authUser._id },
-		});
-
-		if (findUsername.length !== 0)
-			return res
-				.status(400)
-				.json({ message: 'Username already in use by another account' });
-
 		await Users.findOneAndUpdate(
 			{ _id: authUser._id },
 			{
-				name: name,
-				username: username.toLowerCase(),
-				story: story,
+				avatar: avatar,
 			}
 		);
 
 		res.status(200).json({
-			message: 'Default profile updated sucessfully',
+			message: 'Avatar updated sucessfully',
 		});
 	} catch (error) {
 		res.status(500).json({

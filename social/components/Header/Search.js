@@ -16,6 +16,7 @@ export default function Search() {
 	}, [searchTerm]);
 	async function searchUsers() {
 		try {
+			if (!searchTerm) return;
 			const { data } = await getAPI(
 				`user/search?user=${searchTerm}`,
 				auth.token

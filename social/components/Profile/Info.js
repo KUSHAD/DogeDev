@@ -47,11 +47,11 @@ export default function Info({ user }) {
 							</div>
 							<div className='mt-2 md:max-w-xs'>
 								<div>
-									<Typography className='text-xl font-bold'>
+									<Typography className='text-2xl font-bold'>
 										@{_user.username}
 									</Typography>
 								</div>
-								<div>
+								<div className='text-lg'>
 									<span className='mr-2 select-none cursor-pointer hover:underline text-blue-400'>
 										{intFormatter(_user?.followers?.length)} Followers
 									</span>
@@ -61,7 +61,7 @@ export default function Info({ user }) {
 								</div>
 								<div>
 									<Typography className='text-lg'>{_user.name}</Typography>
-									<p>{_user.story}</p>
+									<p className='text-sm'>{_user.story}</p>
 								</div>
 								{auth.token ? (
 									auth.user._id === _user._id && (
