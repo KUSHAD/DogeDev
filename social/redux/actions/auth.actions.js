@@ -48,7 +48,11 @@ export function verifyOTP(data, router) {
 			});
 
 			dispatch({ type: GLOBAL_TYPES.auth, payload: res.data.auth });
-			router.push('/', '/');
+			if (router.query.next) {
+				router.push(router.query.next, router.query.next);
+			} else {
+				router.push('/', '/');
+			}
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,
@@ -79,7 +83,11 @@ export function login(data, router) {
 			});
 
 			dispatch({ type: GLOBAL_TYPES.auth, payload: res.data.auth });
-			router.push('/', '/');
+			if (router.query.next) {
+				router.push(router.query.next, router.query.next);
+			} else {
+				router.push('/', '/');
+			}
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,

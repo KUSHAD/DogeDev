@@ -21,6 +21,10 @@ async function signup(req, res) {
 		const {
 			body: { email, password, name, username, remember },
 		} = req;
+
+		if (username.toLowerCase().includes('update'))
+			return res.status(400).json({ message: 'Username not allowed' });
+
 		await connectDB();
 		const findEmail = await Users.findOne({ email: email.toLowerCase() });
 		const findUsername = await Users.findOne({

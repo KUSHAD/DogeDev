@@ -17,7 +17,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const { Step } = Steps;
-const { Countdown } = Statistic;
 
 const steps = ['Signup', 'Verify Email'];
 
@@ -51,6 +50,8 @@ function FormCont({ setCurrent }) {
 	const { useForm } = Form;
 	const { loading, auth } = useSelector(state => state);
 	const dispatch = useDispatch();
+	const router = useRouter();
+
 	const formRef = useForm();
 	function onSubmit(data) {
 		dispatch(signup(data, setCurrent));
@@ -92,7 +93,11 @@ function FormCont({ setCurrent }) {
 			)}
 			<Typography>
 				Already have an account ?
-				<Link href='/login'>
+				<Link
+					href={
+						router.query.next ? `/login?next=${router.query.next}` : '/login'
+					}
+				>
 					<Button type='link'>Login</Button>
 				</Link>
 			</Typography>
@@ -100,13 +105,7 @@ function FormCont({ setCurrent }) {
 	);
 }
 
-const minutesToAdd = 10;
-const currentDate = new Date();
-const futureDate = new Date(currentDate.getTime() + minutesToAdd * 60000);
-
 function VerifyCont({ setCurrent }) {
-	const [counter, setCounter] = useState(futureDate);
-
 	const { loading, auth } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const router = useRouter();
@@ -116,15 +115,7 @@ function VerifyCont({ setCurrent }) {
 	}
 
 	function resend() {
-		dispatch(signup(auth), setCurrent).then(() => {
-			const _minutesToAdd = 10;
-			const _currentDate = new Date();
-			const _futureDate = new Date(
-				_currentDate.getTime() + _minutesToAdd * 60000
-			);
-
-			setCounter(_futureDate);
-		});
+		dispatch(signup(auth), setCurrent);
 	}
 
 	function onSubmit({ otp }) {
@@ -141,7 +132,6 @@ function VerifyCont({ setCurrent }) {
 		>
 			<Typography>Enter the OTP received in your inbox</Typography>
 			<OTPInput />
-			<Countdown value={counter} className='text-center text-sm' />
 			<Button
 				loading={loading}
 				type='primary'

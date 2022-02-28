@@ -52,7 +52,13 @@ export default function Login() {
 						</Button>
 						<Typography>
 							Need an account ?{' '}
-							<Link href='/signup'>
+							<Link
+								href={
+									router.query.next
+										? `/signup?next=${router.query.next}`
+										: '/signup'
+								}
+							>
 								<Button type='link'>Signup</Button>
 							</Link>
 						</Typography>

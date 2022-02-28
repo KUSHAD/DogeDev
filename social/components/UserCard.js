@@ -8,7 +8,7 @@ export default function UserCard({ user, onClose }) {
 			onClick={onClose}
 			className='bg-white border-b cursor-pointer border-gray-200 hover:bg-slate-50'
 		>
-			<Link href={`/profile/${user._id}`}>
+			<Link href={`/profile/${user.username}`}>
 				<div className='flex flex-row p-1'>
 					<MediumAvatar src={user.avatar} />
 					<div className='flex flex-col ml-1'>
