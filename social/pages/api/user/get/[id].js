@@ -17,19 +17,15 @@ export default function handler(req, res) {
 async function getUser(req, res) {
 	try {
 		const {
-			query: { username },
+			query: { id },
 		} = req;
 		await connectDB();
-		const user = await Users.findOne({
-			username: username.toLowerCase(),
-		}).select('-password');
+		const user = await Users.findById(id).select('-password');
 
 		if (!user)
-			return res
-				.status(400)
-				.json({
-					message: 'No user found corresponding to the username provided',
-				});
+			return res.status(400).json({
+				message: 'No user found corresponding to the ID provided',
+			});
 
 		res.status(200).json({
 			user: user,

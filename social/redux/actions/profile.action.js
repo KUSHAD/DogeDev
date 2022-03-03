@@ -1,16 +1,15 @@
 import { PROFILE_TYPES, GLOBAL_TYPES } from '../../utils/reduxTypes';
 import { getAPI, patchAPI } from '../../utils/fetchData';
 import { uploadAvatar } from '../../utils/media/upload';
-export function getProfileUsers({ users, username }) {
+export function getProfileUsers({ users, id }) {
 	return async dispatch => {
-		if (users.every(_user => _user.username !== username)) {
+		if (users.every(_user => _user._id !== id)) {
 			try {
-				console.log(username);
 				dispatch({
 					type: PROFILE_TYPES.loading,
 					payload: true,
 				});
-				const res = await getAPI(`user/get/${username}`);
+				const res = await getAPI(`user/get/${id}`);
 				dispatch({ type: PROFILE_TYPES.getUser, payload: res.data });
 				dispatch({ type: PROFILE_TYPES.loading, payload: false });
 			} catch (error) {

@@ -66,7 +66,7 @@ export default function NavItems() {
 				overlay={() => (
 					<Menu className='w-24'>
 						<Menu.Item key={0}>
-							<Link href={`/profile/${auth.user.username}`}>Profile</Link>
+							<Link href={`/profile/${auth.user._id}`}>Profile</Link>
 						</Menu.Item>
 						<Menu.Item key={1} danger onClick={showModal}>
 							Logout

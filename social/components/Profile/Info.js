@@ -8,31 +8,31 @@ import ImageModal from '../ImageModal';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EditProfile from './EditProfile';
-export default function Info({ user }) {
+export default function Info() {
 	const [userData, setUserData] = useState([]);
 	const [isViewImgModalOpen, setIsViewImgModalOpen] = useState(false);
 	const [editProfileModal, setEditProfileModal] = useState(false);
 	const { auth, profile } = useSelector(state => state);
 	const dispatch = useDispatch();
 	const {
-		query: { username },
+		query: { id },
 	} = useRouter();
 
 	useEffect(() => {
 		if (auth.token) {
-			if (username === auth.user.username) {
+			if (id === auth.user._id) {
 				setUserData([auth.user]);
 			} else {
-				dispatch(getProfileUsers({ users: profile.users, username }));
-				const newData = profile.users.filter(_user => _user._id === user._id);
+				dispatch(getProfileUsers({ users: profile.users, id }));
+				const newData = profile.users.filter(_user => _user._id === id);
 				setUserData(newData);
 			}
 		} else {
-			dispatch(getProfileUsers({ users: profile.users, username }));
-			const newData = profile.users.filter(_user => _user._id === user._id);
+			dispatch(getProfileUsers({ users: profile.users, id }));
+			const newData = profile.users.filter(_user => _user._id === id);
 			setUserData(newData);
 		}
-	}, [username, auth.user, dispatch, profile.users]);
+	}, [id, auth.user, dispatch, profile.users]);
 	return (
 		<>
 			<div>
@@ -74,7 +74,7 @@ export default function Info({ user }) {
 										</Button>
 									)
 								) : (
-									<Link href={`/login?next=/profile/${username}`}>
+									<Link href={`/login?next=/profile/${id}`}>
 										<Button type='primary'>Login to see profile actions</Button>
 									</Link>
 								)}

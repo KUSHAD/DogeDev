@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { GLOBAL_TYPES } from '../../utils/reduxTypes';
 import { getAPI } from '../../utils/fetchData';
-import UserCard from '../UserCard';
+import UserCard from './UserCard';
 
 export default function Search() {
 	const [searchTerm, setSearchTerm] = useState('');
