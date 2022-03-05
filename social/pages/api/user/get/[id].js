@@ -1,5 +1,6 @@
 import connectDB from '../../../../utils/connectDB';
 import Users from '../../../../models/user';
+import validObjectID from '../../../../utils/validObjectID';
 
 export default function handler(req, res) {
 	const { method } = req;
@@ -20,6 +21,14 @@ async function getUser(req, res) {
 			query: { id },
 		} = req;
 		await connectDB();
+
+		const validUserId = validObjectID(id);
+
+		if (!validUserId)
+			return res.status(400).json({
+				message: 'No user found corresponding to the ID provided',
+			});
+
 		const user = await Users.findById(id).select('-password');
 
 		if (!user)

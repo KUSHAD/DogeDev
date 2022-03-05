@@ -3,6 +3,8 @@ import Profile from '../../containers/Profile';
 import AuthLoading from '../../containers/AuthLoading';
 import Head from 'next/head';
 import connectDB from '../../utils/connectDB';
+import verifyObjectID from '../../utils/validObjectID';
+
 import Users from '../../models/user';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -12,11 +14,20 @@ export default function ProfilePage({ user }) {
 	const { authLoading } = useSelector(state => state);
 	const [_user, set_User] = useState(user);
 	useEffect(() => {
+		if (!user) return;
 		const __user = JSON.parse(user);
 		set_User(__user);
 	}, [user]);
 	const router = useRouter();
-	if (router.isFallback) return <ProfileLoading />;
+	if (router.isFallback)
+		return (
+			<>
+				<Head>
+					<title>Loading Profile | DDSocial</title>
+				</Head>
+				<ProfileLoading />
+			</>
+		);
 	return authLoading ? (
 		<AuthLoading />
 	) : (
@@ -41,12 +52,21 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params: { id } }) {
 	await connectDB();
-	const user = await Users.findById(id).select('-password');
 
-	if (!user)
+	const validUserID = await verifyObjectID(id);
+
+	if (!validUserID) {
 		return {
 			notFound: true,
 		};
+	}
+	const user = await Users.findById(id).select('-password');
+
+	if (!user) {
+		return {
+			notFound: true,
+		};
+	}
 
 	return {
 		props: {

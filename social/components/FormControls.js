@@ -161,7 +161,14 @@ export function StoryInput() {
 			name='story'
 			rules={[{ max: 200, message: 'Maximum 200 characters' }]}
 		>
-			<Input.TextArea showCount maxLength={200} />
+			<Input.TextArea
+				showCount
+				maxLength={200}
+				rows={4}
+				autoSize={{
+					maxRows: 4,
+				}}
+			/>
 		</Form.Item>
 	);
 }
