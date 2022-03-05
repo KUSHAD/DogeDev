@@ -12,6 +12,8 @@ export default function Profile() {
 	return (
 		<Card>
 			<Form
+				labelCol={{ span: 8 }}
+				wrapperCol={{ span: 16 }}
 				onFinish={onFinish}
 				initialValues={{
 					username: auth.user.username,

@@ -24,7 +24,7 @@ async function sendMail(to, subject, body) {
 	});
 
 	const opts = {
-		from: environment.mailCreds.senderMail,
+		from: `DDSocial ${environment.mailCreds.senderMail}`,
 		to: to,
 		html: body,
 		subject: subject,

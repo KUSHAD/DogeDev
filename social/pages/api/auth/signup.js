@@ -59,13 +59,13 @@ async function signup(req, res) {
 			`${otp} - Your DDSocial Account Verification`,
 			`
 			<p>
-				<strong>${otp}</strong> is your DDSocial Account Verification,Enter this otp to verify your email and create your account
+				<strong>${otp}</strong> is your DDSocial Account Verification OTP,Enter this otp to verify your email and create your account
 			</p>
 		`
 		);
 
 		return res.status(200).json({
-			message: 'Please provide the OTP sent to your inbox,valid for 10 mins',
+			message: 'Please provide the OTP sent to your inbox,valid for 1 hr',
 			user: {
 				OTPToken: otpToken,
 				email,

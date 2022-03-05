@@ -3,7 +3,7 @@ import { environment } from '../../environment';
 
 export function generateOTPToken(payload) {
 	return jwt.sign(payload, environment.jwtSecrets.otp, {
-		expiresIn: 600,
+		expiresIn: 3600,
 	});
 }
 
