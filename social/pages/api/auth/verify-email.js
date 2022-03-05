@@ -45,9 +45,9 @@ async function verifyEmail(req, res) {
 				message: 'Incorrect OTP. Double check your OTP and resubmit',
 			});
 
-		const findEmail = await Users.findOne({ email: email.toLowerCase() });
+		const findEmail = await Users.findOne({ email: email });
 		const findUsername = await Users.findOne({
-			username: username.toLowerCase(),
+			username: username,
 		});
 
 		if (findEmail)

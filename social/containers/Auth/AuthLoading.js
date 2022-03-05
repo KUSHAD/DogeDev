@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import Centered from '../components/Centered';
+import Centered from '../../components/Centered';
 
 export default function AuthLoading() {
 	return (

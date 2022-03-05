@@ -23,6 +23,9 @@ async function updateDefaultProfile(req, res) {
 		await connectDB();
 		const authUser = await authMiddleware(req, res);
 
+		if (username.toLowerCase().includes('update'))
+			return res.status(400).json({ message: 'Username not allowed' });
+
 		const findUsername = await Users.find({
 			username: username.toLowerCase(),
 			_id: { $ne: authUser._id },

@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 
 const { TabPane } = Tabs;
 export default function EditProfile({ isOpen, onClose }) {
-	const { loading } = useSelector(state => state);
+	const { loading, auth } = useSelector(state => state);
 	return (
 		<Modal
 			footer={[]}
@@ -15,7 +15,7 @@ export default function EditProfile({ isOpen, onClose }) {
 			centered
 			visible={isOpen}
 			onCancel={() => {
-				if (!loading) return onClose();
+				if (!loading && !auth.tempEmail) return onClose();
 			}}
 			destroyOnClose
 		>

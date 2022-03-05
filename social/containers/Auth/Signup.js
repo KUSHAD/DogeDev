@@ -1,4 +1,4 @@
-import Centered from '../components/Centered';
+import Centered from '../../components/Centered';
 import Head from 'next/head';
 import { Button, Card, Form, Steps, Typography, Statistic } from 'antd';
 import {
@@ -9,10 +9,10 @@ import {
 	PassInput,
 	RememberMeCheckBox,
 	UsernameInput,
-} from '../components/FormControls';
+} from '../../components/FormControls';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { signup, verifyOTP } from '../redux/actions/auth.actions';
+import { signup, verifyOTP } from '../../redux/actions/auth.actions';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 

@@ -41,15 +41,13 @@ async function signup(req, res) {
 				message: `Username already in use by another account`,
 			});
 
-		const usernameLower = username.toLowerCase();
-
 		const otp = Math.floor(100000 + Math.random() * 900000);
 
 		const otpToken = await generateOTPToken({
 			email,
 			password,
 			name,
-			usernameLower,
+			username,
 			otp,
 			remember,
 		});

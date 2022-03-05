@@ -2,13 +2,13 @@ import { Button, Card, Form, Typography } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
-import Centered from '../components/Centered';
+import Centered from '../../components/Centered';
 import {
 	EmailUserNameInput,
 	PassInput,
 	RememberMeCheckBox,
-} from '../components/FormControls';
-import { login } from '../redux/actions/auth.actions';
+} from '../../components/FormControls';
+import { login } from '../../redux/actions/auth.actions';
 import { useRouter } from 'next/router';
 
 export default function Login() {

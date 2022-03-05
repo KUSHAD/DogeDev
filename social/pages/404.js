@@ -1,4 +1,4 @@
-import NotFound from '../containers/NotFound';
+import NotFound from '../containers/Error/NotFound';
 export default function NotFoundPage() {
 	return <NotFound />;
 }

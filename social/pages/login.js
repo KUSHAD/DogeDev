@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
-import AuthLoading from '../containers/AuthLoading';
-import Login from '../containers/Login';
+import AuthLoading from '../containers/Auth/AuthLoading';
+import Login from '../containers/Auth/Login';
 import Home from '../containers/Home';
 
 export default function LoginPage() {

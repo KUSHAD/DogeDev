@@ -1,6 +1,6 @@
 import { Card, Typography, Button } from 'antd';
 import Head from 'next/head';
-import Centered from '../components/Centered';
+import Centered from '../../components/Centered';
 import Image from 'next/image';
 import Link from 'next/link';
 
