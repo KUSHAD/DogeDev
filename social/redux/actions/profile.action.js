@@ -199,3 +199,39 @@ export function verifyEmail({ otp, OTPToken }, auth, setCurrent) {
 		}
 	};
 }
+
+export function updatePass({ currentPass, password }, auth, form) {
+	return async dispatch => {
+		try {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
+				payload: true,
+			});
+
+			const res = await patchAPI(
+				'user/update/update-password',
+				{ currentPass, password },
+				auth.token
+			);
+
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: {
+					success: res.data.message,
+				},
+			});
+
+			form[0].resetFields();
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
+			});
+		} finally {
+			dispatch({
+				type: GLOBAL_TYPES.loading,
+				payload: false,
+			});
+		}
+	};
+}

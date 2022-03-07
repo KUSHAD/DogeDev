@@ -62,11 +62,11 @@ export function UsernameInput() {
 	);
 }
 
-export function PassInput() {
+export function PassInput({ label, name }) {
 	return (
 		<Form.Item
-			label='Password'
-			name='password'
+			label={label ? label : 'Password'}
+			name={name ? name : 'password'}
 			rules={[
 				{
 					required: true,
@@ -87,10 +87,10 @@ export function PassInput() {
 	);
 }
 
-export function ConfPassInput({ _ref }) {
+export function ConfPassInput({ _ref, label }) {
 	return (
 		<Form.Item
-			label='Confirm Pass'
+			label={label ? label : 'Confirm Pass'}
 			name='confPass'
 			rules={[
 				{
