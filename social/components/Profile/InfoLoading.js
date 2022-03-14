@@ -2,7 +2,7 @@ export default function InfoLoading() {
 	return (
 		<>
 			<div className='animate-pulse select-none flex flex-col md:flex-row w-full md:max-w-lg justify-between m-auto'>
-				<div class='rounded-full bg-gray-400 h-[150px] w-[150px]' />
+				<div className='rounded-full bg-gray-400 h-[150px] w-[150px]' />
 				<div className='mt-2 w-full md:max-w-xs'>
 					<div>
 						<div className='h-6 bg-gray-400 rounded my-2' />

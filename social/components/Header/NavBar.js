@@ -4,7 +4,7 @@ import Search from './Search';
 
 export default function NavBar() {
 	return (
-		<div className='w-full bg-white sticky top-0 left-0 h-16 shadow-lg rounded-b-lg'>
+		<div className='w-full bg-white sticky top-0 z-50 left-0 h-16 shadow-lg rounded-b-lg'>
 			<div className='px-4 md:flex md:flex-row flex flex-col md:justify-between'>
 				<Logo />
 				<Search />

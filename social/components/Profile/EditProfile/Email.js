@@ -6,6 +6,7 @@ import {
 	updateEmail,
 	verifyEmail,
 } from '../../../redux/actions/profile.action';
+import { GLOBAL_TYPES } from '../../../utils/reduxTypes';
 const { Step } = Steps;
 const steps = ['Email', 'Verify Email'];
 
@@ -78,6 +79,18 @@ function VerifyCont({ setCurrent }) {
 		dispatch(verifyEmail({ otp, OTPToken: auth.OTPToken }, auth, setCurrent));
 	}
 
+	function cancel() {
+		dispatch({
+			type: GLOBAL_TYPES.auth,
+			payload: {
+				...auth,
+				tempEmail: '',
+				OTPToken: '',
+			},
+		});
+		setCurrent(0);
+	}
+
 	return (
 		<Form
 			onFinish={onSubmit}
@@ -96,7 +109,7 @@ function VerifyCont({ setCurrent }) {
 			>
 				Verify
 			</Button>
-			<Button onClick={resend} loading={loading} className='w-full'>
+			<Button onClick={resend} loading={loading} className='w-full mb-2'>
 				Resend Email
 			</Button>
 			<Button
@@ -105,7 +118,16 @@ function VerifyCont({ setCurrent }) {
 				loading={loading}
 				danger
 			>
-				Change Credentials
+				Change Email
+			</Button>
+			<Button
+				onClick={cancel}
+				className='w-full'
+				loading={loading}
+				danger
+				type='primary'
+			>
+				Cancel Email Update
 			</Button>
 		</Form>
 	);

@@ -1,6 +1,7 @@
 import { PROFILE_TYPES, GLOBAL_TYPES } from '../../utils/reduxTypes';
 import { getAPI, patchAPI, postAPI } from '../../utils/fetchData';
 import { uploadAvatar } from '../../utils/media/upload';
+import { deleteData } from '../../utils/dataModification';
 export function getProfileUsers({ users, id }) {
 	return async dispatch => {
 		if (users.every(_user => _user._id !== id)) {
@@ -231,6 +232,62 @@ export function updatePass({ currentPass, password }, auth, form) {
 			dispatch({
 				type: GLOBAL_TYPES.loading,
 				payload: false,
+			});
+		}
+	};
+}
+
+export function follow({ users, user, auth }) {
+	return dispatch => {
+		try {
+			let newUser = { ...user, followers: [...user.followers, auth.user] };
+			dispatch({
+				type: PROFILE_TYPES.follow,
+				payload: newUser,
+			});
+			dispatch({
+				type: GLOBAL_TYPES.auth,
+				payload: {
+					...auth,
+					user: { ...auth.user, following: [...auth.user.following, newUser] },
+				},
+			});
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
+			});
+		}
+	};
+}
+
+export function unFollow({ users, user, auth }) {
+	return dispatch => {
+		try {
+			let newUser = {
+				...user,
+				followers: deleteData(user.followers, auth.user._id),
+			};
+
+			dispatch({
+				type: PROFILE_TYPES.unfollow,
+				payload: newUser,
+			});
+
+			dispatch({
+				type: GLOBAL_TYPES.auth,
+				payload: {
+					...auth,
+					user: {
+						...auth.user,
+						following: deleteData(auth.user.following, newUser._id),
+					},
+				},
+			});
+		} catch (error) {
+			dispatch({
+				type: GLOBAL_TYPES.alert,
+				payload: { error: error.response.data.message },
 			});
 		}
 	};

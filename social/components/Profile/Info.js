@@ -8,6 +8,7 @@ import ImageModal from '../ImageModal';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import EditProfile from './EditProfile';
+import FollowButton from './FollowButton';
 export default function Info() {
 	const [userData, setUserData] = useState([]);
 	const [isViewImgModalOpen, setIsViewImgModalOpen] = useState(false);
@@ -64,7 +65,7 @@ export default function Info() {
 									<p className='text-sm'>{_user.story}</p>
 								</div>
 								{auth.token ? (
-									auth.user._id === _user._id && (
+									auth.user._id === _user._id ? (
 										<Button
 											onClick={() => setEditProfileModal(true)}
 											className='w-full'
@@ -72,6 +73,8 @@ export default function Info() {
 										>
 											Edit Profile
 										</Button>
+									) : (
+										<FollowButton user={_user} />
 									)
 								) : (
 									<Link href={`/login?next=/profile/${id}`}>

@@ -8,4 +8,6 @@ export const GLOBAL_TYPES = {
 export const PROFILE_TYPES = {
 	loading: 'profile/loading',
 	getUser: 'profile/get-user',
+	follow: 'profile/follow',
+	unfollow: 'profile/unfollow',
 };
