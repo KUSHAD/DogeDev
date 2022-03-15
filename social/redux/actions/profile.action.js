@@ -238,7 +238,7 @@ export function updatePass({ currentPass, password }, auth, form) {
 }
 
 export function follow({ users, user, auth }) {
-	return dispatch => {
+	return async dispatch => {
 		try {
 			let newUser = { ...user, followers: [...user.followers, auth.user] };
 			dispatch({
@@ -252,6 +252,7 @@ export function follow({ users, user, auth }) {
 					user: { ...auth.user, following: [...auth.user.following, newUser] },
 				},
 			});
+			const res = await patchAPI(`user/follow/${user._id}`, null, auth.token);
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,
@@ -262,7 +263,7 @@ export function follow({ users, user, auth }) {
 }
 
 export function unFollow({ users, user, auth }) {
-	return dispatch => {
+	return async dispatch => {
 		try {
 			let newUser = {
 				...user,
@@ -284,6 +285,9 @@ export function unFollow({ users, user, auth }) {
 					},
 				},
 			});
+
+			const res = await patchAPI(`user/unfollow/${user._id}`, null, auth.token);
+			console.log(res);
 		} catch (error) {
 			dispatch({
 				type: GLOBAL_TYPES.alert,

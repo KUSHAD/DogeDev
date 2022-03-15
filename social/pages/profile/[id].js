@@ -62,7 +62,7 @@ export async function getStaticProps({ params: { id } }) {
 			notFound: true,
 		};
 	}
-	const user = await Users.findById(id).select('-password');
+	const user = await Users.findById(id).select('username name');
 
 	if (!user) {
 		return {

@@ -11,7 +11,9 @@ export default async function authMiddleware(req, res) {
 		if (!decoded)
 			return res.status(400).json({ message: 'Unauthenticated Request !!!' });
 
-		const user = await Users.findOne({ _id: decoded.id });
+		const user = await Users.findOne({ _id: decoded.id }).select(
+			'name username email'
+		);
 
 		return {
 			_id: user._id,

@@ -1,25 +1,27 @@
 import connectDB from '../../../../utils/connectDB';
 import Users from '../../../../models/user';
 import validObjectID from '../../../../utils/validObjectID';
+import authMiddleWare from '../../../../middlewares/auth';
 
 export default function handler(req, res) {
 	const { method } = req;
 	switch (method) {
-		case 'GET':
-			getUser(req, res);
+		case 'PATCH':
+			unfollow(req, res);
 			break;
 		default:
-			res.setHeader('Allow', ['GET']);
+			res.setHeader('Allow', ['PATCH']);
 			res.status(405).end(`Method ${method} Not Allowed`);
 			break;
 	}
 }
 
-async function getUser(req, res) {
+async function unfollow(req, res) {
 	try {
 		const {
 			query: { id },
 		} = req;
+
 		await connectDB();
 
 		const validUserId = validObjectID(id);
@@ -29,17 +31,34 @@ async function getUser(req, res) {
 				message: 'No user found corresponding to the ID provided',
 			});
 
-		const user = await Users.findById(id)
-			.populate('followers following')
-			.select('-password');
+		const authUser = await authMiddleWare(req, res);
 
-		if (!user)
-			return res.status(400).json({
-				message: 'No user found corresponding to the ID provided',
-			});
+		await Users.findOneAndUpdate(
+			{
+				_id: id,
+			},
+			{
+				$pull: {
+					following: authUser._id,
+				},
+			},
+			{ new: true }
+		);
 
-		res.status(200).json({
-			user: user,
+		await Users.findOneAndUpdate(
+			{
+				_id: authUser._id,
+			},
+			{
+				$pull: {
+					followers: id,
+				},
+			},
+			{ new: true }
+		);
+
+		return res.status(200).json({
+			message: 'User unfollowed',
 		});
 	} catch (error) {
 		res.status(500).json({
